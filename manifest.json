@@ -1,0 +1,22 @@
+{
+  "name": "PitaGO",
+  "short_name": "PitaGO",
+  "description": "Applicazione per la consultazione dell'orario dei docenti della sede di Policoro dell'I.I.S. 'Policoro-Tursi'.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#0d6efd",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "calendario_256.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "calendario_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

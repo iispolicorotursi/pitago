@@ -1,0 +1,42 @@
+﻿classe;aula;piano
+1P13;O28;terra
+1P14;108;primo
+1P19;O12;terra
+1AT05;205;secondo
+1AT10;210;secondo
+1AT16;215;secondo
+1BT05;O23;terra
+2AT16;O32;terra
+2P19;217b;secondo
+2P13;213;secondo
+2P14;218;secondo
+2P13 2P14;218;secondo
+2AT05;201;secondo
+2AT10;207;secondo
+2BT05;209;secondo
+3A-ITEC;217a;secondo
+3A-ITMM;O17;terra
+3A-ITCM;O15;terra
+3A-ITMM 3A-ITCM;O15;terra
+3B-ITMM;214;secondo
+3P13;104;primo
+3P14;O31;terra
+3P19;107;primo
+4A-ITEC;105;primo
+4A-ITCM;106;primo
+4A-ITEC 4A-ITCM;106;primo
+4A-ITMM;O27;terra
+4B-ITMM;203;secondo
+4P13;208;secondo
+4P14;Lab.011;terra
+4AP19;O14;terra
+4P14 4AP19;O14;terra
+5A-ITEC;101-102;primo
+5A-ITCM;103;primo
+5A-ITEC 5A-ITCM;103;primo
+5A-ITMM;O26;terra
+5AP19;008bis;terra
+5B-ITMM;204;secondo
+5BP19;202;secondo
+5P13;110;primo
+5P14;206;secondo
