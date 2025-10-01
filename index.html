@@ -99,8 +99,34 @@
         min-width: 75px;
       }
 
-      #current-date{
+      #current-date {
         font-weight: bold;
+      }
+    }
+
+    .fab {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      bottom: 30px;
+      right: 30px;
+      background-color: #0d6efd;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 28px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+      border: none;
+      z-index: 1050;
+    }
+
+    .fab:hover {
+      background-color: #0b5ed7;
+    }
+
+    @media (max-width: 768px) {
+      .fab {
+        bottom: unset;
       }
     }
   </style>
@@ -197,6 +223,7 @@
             }
           });
 
+          popolaDropdownClassi();
           impostaGiornoCorrente();
           const docenteSalvato = localStorage.getItem('ultimoDocenteCercato');
           if (docenteSalvato) {
@@ -208,9 +235,36 @@
           console.error("Dettagli errore:", error);
           document.getElementById("info-text").textContent = `Impossibile caricare i dati. Errore: ${error}.`;
         });
+
+      const fab = document.getElementById('fabTrovaAula');
+      const modalElement = document.getElementById('modalTrovaAula');
+      const modal = new bootstrap.Modal(modalElement);
+      const selezionaClasse = document.getElementById('selezionaClasse');
+      const risultatoAula = document.getElementById('risultatoAula');
+
+      fab.addEventListener('click', () => modal.show());
+
+      selezionaClasse.addEventListener('change', () => {
+        const classeSelezionata = selezionaClasse.value;
+        if (!classeSelezionata) {
+          risultatoAula.classList.add('d-none');
+          return;
+        }
+        const dettagli = mappaAule.get(classeSelezionata);
+        if (dettagli) {
+          risultatoAula.innerHTML = `Aula: <strong>${dettagli.aula}</strong><br/>Piano: <strong>${dettagli.piano}</strong>`;
+          risultatoAula.classList.remove('d-none');
+        }
+      });
+
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        risultatoAula.classList.add('d-none');
+        selezionaClasse.value = "";
+      });
+
     });
 
-    function dataCorrente(){
+    function dataCorrente() {
       let data = new Date();
 
       let giorni = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
@@ -346,11 +400,47 @@
         `;
     }
 
+    function popolaDropdownClassi() {
+      const dropdown = document.getElementById('selezionaClasse');
+      const classi = Array.from(mappaAule.keys()).sort();
+
+      classi.forEach(classe => {
+        const option = document.createElement('option');
+        option.value = classe;
+        option.textContent = classe;
+        dropdown.appendChild(option);
+      });
+    }
+
     document.getElementById("docente").addEventListener('input', filtra);
     document.getElementById("giorno").addEventListener('change', filtra);
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <button class="fab" id="fabTrovaAula" title="Trova Aula">
+    <i class="bi bi-search"></i>
+  </button>
+
+  <div class="modal fade" id="modalTrovaAula" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Trova aula per classe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Seleziona una classe dall'elenco per visualizzare l'aula e il piano corrispondenti.</p>
+          <select class="form-select" id="selezionaClasse">
+            <option value="">-- Seleziona una classe --</option>
+          </select>
+          <div id="risultatoAula" class="alert alert-info mt-3 d-none">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
