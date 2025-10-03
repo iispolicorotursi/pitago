@@ -353,23 +353,58 @@
     }
 
     function creaTabellaSettimanale(lezioni) {
-      const fasceOrarie = [...new Set(lezioni.map(l => `${l.oraInizio}-${l.oraFine}`))].sort();
-      let auleMap = {};
-      lezioni.forEach(l => {
-        const key = `${l.oraInizio}-${l.oraFine}|${l.giorno}`;
-        auleMap[key] = l.classe;
-      });
-      let headHTML = giorniOrario.map(g => `<th>${g}</th>`).join('');
-      let bodyHTML = fasceOrarie.map(fascia => {
-        let celle = giorniOrario.map(giorno => {
-          const key = `${fascia}|${giorno}`;
-          const classe = auleMap[key] ? `<span class="badge bg-primary rounded-pill">${auleMap[key]}</span>` : '';
-          return `<td>${classe}</td>`;
-        }).join('');
-        return `<tr><td class="ora-header">${fascia.replace('-', ' - ')}</td>${celle}</tr>`;
-      }).join('');
+        const orarioPerGiorno = {};
+        giorniOrario.forEach(giorno => {
+            const lezioniDelGiorno = lezioni
+                .filter(l => l.giorno === giorno)
+                .sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
 
-      return `<div class="table-responsive"><table class="table orario-settimanale-table"><thead><tr><th class="ora-header">Ora</th>${headHTML}</tr></thead><tbody>${bodyHTML}</tbody></table></div>`;
+            let primoIndice = -1;
+            let ultimoIndice = -1;
+            
+            if (lezioniDelGiorno.length > 1) {
+                const fasceOrarieGiorno = lezioniDelGiorno.map(l => `${l.oraInizio}-${l.oraFine}`);
+                primoIndice = tutteLeFasceOrarie.indexOf(fasceOrarieGiorno[0]);
+                ultimoIndice = tutteLeFasceOrarie.indexOf(fasceOrarieGiorno[fasceOrarieGiorno.length - 1]);
+            }
+            
+            orarioPerGiorno[giorno] = { primoIndice, ultimoIndice };
+        });
+
+        let auleMap = {};
+        lezioni.forEach(l => {
+            const key = `${l.oraInizio}-${l.oraFine}|${l.giorno}`;
+            auleMap[key] = l.classe;
+        });
+
+        let headHTML = giorniOrario.map(g => `<th>${g}</th>`).join('');
+        let bodyHTML = tutteLeFasceOrarie.map((fascia, index) => {
+            let celle = giorniOrario.map(giorno => {
+                const key = `${fascia}|${giorno}`;
+                const classe = auleMap[key];
+                
+                if (classe) {
+                    return `<td><span class="badge bg-primary rounded-pill">${classe}</span></td>`;
+                } else {
+                    const { primoIndice, ultimoIndice } = orarioPerGiorno[giorno];
+                    if (primoIndice !== -1 && index > primoIndice && index < ultimoIndice) {
+                        return `<td><span class="text-primary fst-italic"><i class="bi bi-cup-hot"></i></span></td>`;
+                    } else {
+                        return `<td><span class="text-muted">-</span></td>`;
+                    }
+                }
+            }).join('');
+            return `<tr><td class="ora-header">${fascia.replace('-', ' - ')}</td>${celle}</tr>`;
+        }).join('');
+
+        return `
+            <div class="table-responsive">
+                <table class="table orario-settimanale-table">
+                    <thead><tr><th class="ora-header">Ora</th>${headHTML}</tr></thead>
+                    <tbody>${bodyHTML}</tbody>
+                </table>
+            </div>
+        `;
     }
 
     function creaListaGiornaliera(lezioni, giorno) {
