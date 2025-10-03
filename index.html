@@ -106,20 +106,19 @@
       }
     }
 
-    #results-container .card:last-child{
-      margin-bottom:95px !important;
+    #results-container .card:last-child {
+      margin-bottom: 95px !important;
     }
 
-    #version-container{
-      margin-top:-5px;
+    #version-container {
+      margin-top: -5px;
       font-style: italic;
       font-size: .775em;
     }
 
-    #the-title{
-      margin-bottom:0;
+    #the-title {
+      margin-bottom: 0;
     }
-
   </style>
 </head>
 
@@ -128,7 +127,7 @@
     <div class="text-center mb-4">
       <i class="bi bi-calendar-week fs-1 text-primary"></i>
       <h1 class="mt-2" id="the-title">PitaGO</h1>
-      <p class="small text-muted" id="version-container">versione 1</p>
+      <p class="small text-muted" id="version-container">versione 2</p>
       <p class="small text-muted" id="date-container"></p>
     </div>
 
@@ -181,7 +180,7 @@
 
     let dati = [];
     let mappaAule = new Map();
-    let tutteLeFasceOrarie = []; 
+    let tutteLeFasceOrarie = [];
     const giorniOrario = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -325,20 +324,16 @@
         const card = document.createElement('div');
         card.className = 'card mb-4';
 
-      let cardBody = '';
-      if (giornoSelezionato === "") {
+        let cardBody = '';
+        if (giornoSelezionato === "") {
           cardBody = creaTabellaSettimanale(lezioniDocente);
-      } else {
-          // CONTROLLO AGGIUNTIVO:
-          // Verifica se esistono lezioni per questo docente nel giorno selezionato.
+        } else {
           const haLezioniNelGiorno = lezioniDocente.some(l => l.giorno === giornoSelezionato);
 
-          // Crea la tabella giornaliera SOLO SE ci sono effettivamente lezioni.
           if (haLezioniNelGiorno) {
-              cardBody = creaListaGiornaliera(lezioniDocente, giornoSelezionato);
+            cardBody = creaListaGiornaliera(lezioniDocente, giornoSelezionato);
           }
-          // Altrimenti, cardBody rimane una stringa vuota.
-      }
+        }
 
         if (cardBody) {
           card.innerHTML = `
@@ -378,47 +373,59 @@
     }
 
     function creaListaGiornaliera(lezioni, giorno) {
-        // Filtra le lezioni del docente per il giorno selezionato
-        const lezioniDelGiorno = lezioni.filter(l => l.giorno === giorno);
+      const lezioniDelGiorno = lezioni
+        .filter(l => l.giorno === giorno)
+        .sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
 
-        // Crea una mappa per un accesso rapido alle lezioni di quel giorno
-        const mappaLezioniGiorno = new Map();
-        lezioniDelGiorno.forEach(l => {
-            const fascia = `${l.oraInizio}-${l.oraFine}`;
-            mappaLezioniGiorno.set(fascia, l.classe);
-        });
+      let primoIndiceLezione = -1;
+      let ultimoIndiceLezione = -1;
+      if (lezioniDelGiorno.length > 1) {
+        const fasceOrarieDelDocente = lezioniDelGiorno.map(l => `${l.oraInizio}-${l.oraFine}`);
+        primoIndiceLezione = tutteLeFasceOrarie.indexOf(fasceOrarieDelDocente[0]);
+        ultimoIndiceLezione = tutteLeFasceOrarie.indexOf(fasceOrarieDelDocente[fasceOrarieDelDocente.length - 1]);
+      }
 
-        // Itera su TUTTE le fasce orarie della scuola
-        let righeHTML = tutteLeFasceOrarie.map(fascia => {
-            const classe = mappaLezioniGiorno.get(fascia); // Cerca una lezione in questa fascia
-            let cellaClasseHTML = '<span class="text-muted">-</span>'; // Default per ore vuote
+      const mappaLezioniGiorno = new Map();
+      lezioniDelGiorno.forEach(l => {
+        const fascia = `${l.oraInizio}-${l.oraFine}`;
+        mappaLezioniGiorno.set(fascia, l.classe);
+      });
 
-            // Se trova una classe, costruisce la "pillola"
-            if (classe) {
-                const dettagliAula = mappaAule.get(classe);
-                let infoExtra = '';
-                if (dettagliAula) {
-                    infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
-                }
-                cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
-            }
+      let righeHTML = tutteLeFasceOrarie.map((fascia, index) => {
+        const classe = mappaLezioniGiorno.get(fascia);
+        let cellaClasseHTML = '';
 
-            const [oraInizio, oraFine] = fascia.split('-');
-            return `
-            <tr>
-                <td>${oraInizio} - ${oraFine}</td>
-                <td>${cellaClasseHTML}</td>
-            </tr>
-            `;
-        }).join('');
+        if (classe) {
+          const dettagliAula = mappaAule.get(classe);
+          let infoExtra = '';
+          if (dettagliAula) {
+            infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
+          }
+          cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
+        } else {
+          if (primoIndiceLezione !== -1 && index > primoIndiceLezione && index < ultimoIndiceLezione) {
+            cellaClasseHTML = `<span class="text-primary">Ora libera <i class="bi bi-cup-hot"></i></span>`;
+          } else {
+            cellaClasseHTML = '<span class="text-muted"></span>';
+          }
+        }
 
+        const [oraInizio, oraFine] = fascia.split('-');
         return `
-            <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
-            <table class="table table-striped">
-                <thead><tr><th>Orario</th><th>Classe - Aula (piano)</th></tr></thead>
-                <tbody>${righeHTML}</tbody>
-            </table>
+        <tr>
+            <td>${oraInizio} - ${oraFine}</td>
+            <td>${cellaClasseHTML}</td>
+        </tr>
         `;
+      }).join('');
+
+      return `
+        <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
+        <table class="table table-striped">
+            <thead><tr><th>Orario</th><th>Classe - Aula (piano)</th></tr></thead>
+            <tbody>${righeHTML}</tbody>
+        </table>
+    `;
     }
 
     function popolaDropdownClassi() {
@@ -459,8 +466,8 @@
   </div>
 
   <nav class="navbar fixed-bottom navbar-light bg-light d-flex justify-content-around">
-  <button class="btn btn-light" id="fabTrovaAula"><i class="bi bi-search"></i><br>Cerca aula</button>
-</nav>
+    <button class="btn btn-light" id="fabTrovaAula"><i class="bi bi-search"></i><br>Cerca aula</button>
+  </nav>
 
 </body>
 
