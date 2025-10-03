@@ -325,12 +325,20 @@
         const card = document.createElement('div');
         card.className = 'card mb-4';
 
-        let cardBody = '';
-        if (giornoSelezionato === "") {
+      let cardBody = '';
+      if (giornoSelezionato === "") {
           cardBody = creaTabellaSettimanale(lezioniDocente);
-        } else {
-          cardBody = creaListaGiornaliera(lezioniDocente, giornoSelezionato);
-        }
+      } else {
+          // CONTROLLO AGGIUNTIVO:
+          // Verifica se esistono lezioni per questo docente nel giorno selezionato.
+          const haLezioniNelGiorno = lezioniDocente.some(l => l.giorno === giornoSelezionato);
+
+          // Crea la tabella giornaliera SOLO SE ci sono effettivamente lezioni.
+          if (haLezioniNelGiorno) {
+              cardBody = creaListaGiornaliera(lezioniDocente, giornoSelezionato);
+          }
+          // Altrimenti, cardBody rimane una stringa vuota.
+      }
 
         if (cardBody) {
           card.innerHTML = `
