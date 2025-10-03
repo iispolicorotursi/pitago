@@ -168,6 +168,7 @@
 
     let dati = [];
     let mappaAule = new Map();
+    let tutteLeFasceOrarie = []; 
     const giorniOrario = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -190,6 +191,9 @@
               classe: colonne[4]
             };
           });
+
+          const fasceUniche = new Set(dati.map(l => `${l.oraInizio}-${l.oraFine}`));
+          tutteLeFasceOrarie = Array.from(fasceUniche).sort();
 
           const righeAule = auleText.trim().split("\n").slice(1);
           righeAule.forEach(riga => {
@@ -353,27 +357,44 @@
     }
 
     function creaListaGiornaliera(lezioni, giorno) {
-      const lezioniDelGiorno = lezioni.filter(l => l.giorno === giorno).sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
-      if (lezioniDelGiorno.length === 0) return '';
+        // Filtra le lezioni del docente per il giorno selezionato
+        const lezioniDelGiorno = lezioni.filter(l => l.giorno === giorno);
 
-      let righeHTML = lezioniDelGiorno.map(l => {
-        const dettagliAula = mappaAule.get(l.classe);
-        let infoExtra = '';
-        if (dettagliAula) {
-          infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
-        }
-        return `
+        // Crea una mappa per un accesso rapido alle lezioni di quel giorno
+        const mappaLezioniGiorno = new Map();
+        lezioniDelGiorno.forEach(l => {
+            const fascia = `${l.oraInizio}-${l.oraFine}`;
+            mappaLezioniGiorno.set(fascia, l.classe);
+        });
+
+        // Itera su TUTTE le fasce orarie della scuola
+        let righeHTML = tutteLeFasceOrarie.map(fascia => {
+            const classe = mappaLezioniGiorno.get(fascia); // Cerca una lezione in questa fascia
+            let cellaClasseHTML = '<span class="text-muted">-</span>'; // Default per ore vuote
+
+            // Se trova una classe, costruisce la "pillola"
+            if (classe) {
+                const dettagliAula = mappaAule.get(classe);
+                let infoExtra = '';
+                if (dettagliAula) {
+                    infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
+                }
+                cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
+            }
+
+            const [oraInizio, oraFine] = fascia.split('-');
+            return `
             <tr>
-                <td>${l.oraInizio} - ${l.oraFine}</td>
-                <td><span class="badge bg-primary rounded-pill fs-6">${l.classe}${infoExtra}</span></td>
+                <td>${oraInizio} - ${oraFine}</td>
+                <td>${cellaClasseHTML}</td>
             </tr>
             `;
-      }).join('');
+        }).join('');
 
-      return `
+        return `
             <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
             <table class="table table-striped">
-                <thead><tr><th>Orario</th><th>Classe - Aula (piano)</th></tr></thead>
+                <thead><tr><th>Orario</th><th>Classe - Aula (Piano)</th></tr></thead>
                 <tbody>${righeHTML}</tbody>
             </table>
         `;
