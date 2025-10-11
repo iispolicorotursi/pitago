@@ -1,401 +1,492 @@
 <!DOCTYPE html>
 <html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PitaGO - orario docenti I.I.S. "Policoro-Tursi"</title>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PitaGO - orario docenti I.I.S. "Policoro-Tursi"</title>
+    <meta name="theme-color" content="#0d6efd" />
+    <link rel="manifest" href="manifest.json" />
+    <link
+      rel="apple-touch-icon"
+      href="https://www.gstatic.com/android/keyboard/emojikit/20181026/emojikit/256/1f4c5.png"
+    />
 
-  <meta name="theme-color" content="#0d6efd" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="https://www.gstatic.com/android/keyboard/emojikit/20181026/emojikit/256/1f4c5.png">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="calendario_256.png" sizes="256x256" />
 
-  <link rel="icon" href="calendario_256.png" sizes="256x256">
+    <style>
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+      }
 
-  <style>
-    body {
-      font-family: 'Nunito', sans-serif;
-      background-color: #f8f9fa;
-      color: #343a40;
-    }
+      .container {
+        max-width: 1140px;
+      }
 
-    .container {
-      max-width: 1140px;
-    }
+      h1 {
+        color: #343a40;
+        font-weight: 600;
+      }
 
-    h1 {
-      color: #343a40;
-      font-weight: 600;
-    }
+      .card {
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border: none;
+      }
 
-    .card {
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-      border: none;
-    }
+      .form-control,
+      .form-select {
+        border-radius: 10px;
+        padding: 10px 15px;
+      }
 
-    .form-control,
-    .form-select {
-      border-radius: 10px;
-      padding: 10px 15px;
-    }
+      .form-control:focus,
+      .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        border-color: #80bdff;
+      }
 
-    .form-control:focus,
-    .form-select:focus {
-      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
-      border-color: #80bdff;
-    }
+      .info-message {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: #6c757d;
+      }
 
-    .info-message {
-      text-align: center;
-      padding: 20px;
-      font-style: italic;
-      color: #6c757d;
-    }
+      .input-group-text {
+        border-radius: 10px 0 0 10px;
+      }
 
-    .input-group-text {
-      border-radius: 10px 0 0 10px;
-    }
-
-    .orario-settimanale-table {
-      table-layout: fixed;
-      text-align: center;
-      vertical-align: middle;
-      font-size: 0.9rem;
-    }
-
-    .orario-settimanale-table th {
-      background-color: #e9ecef;
-    }
-
-    .orario-settimanale-table td,
-    .orario-settimanale-table th {
-      border: 1px solid #dee2e6;
-    }
-
-    .orario-settimanale-table .ora-header {
-      font-weight: 600;
-      width: 100px;
-    }
-
-    @media (max-width: 767px) {
       .orario-settimanale-table {
-        font-size: 0.8rem;
-        table-layout: auto;
+        table-layout: fixed;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 0.9rem;
+      }
+
+      .orario-settimanale-table th {
+        background-color: #e9ecef;
       }
 
       .orario-settimanale-table td,
       .orario-settimanale-table th {
-        padding: 0.4rem 0.2rem;
-        white-space: nowrap;
+        border: 1px solid #dee2e6;
       }
 
       .orario-settimanale-table .ora-header {
-        width: auto;
-        min-width: 75px;
+        font-weight: 600;
+        width: 100px;
       }
 
-      #current-date {
-        font-weight: bold;
+      @media (max-width: 767px) {
+        .orario-settimanale-table {
+          font-size: 0.8rem;
+          table-layout: auto;
+        }
+
+        .orario-settimanale-table td,
+        .orario-settimanale-table th {
+          padding: 0.4rem 0.2rem;
+          white-space: nowrap;
+        }
+
+        .orario-settimanale-table .ora-header {
+          width: auto;
+          min-width: 75px;
+        }
+
+        #current-date {
+          font-weight: bold;
+        }
       }
-    }
 
-    #results-container .card:last-child {
-      margin-bottom: 95px !important;
-    }
+      #results-container .card:last-child {
+        margin-bottom: 95px !important;
+      }
 
-    #version-container {
-      margin-top: -5px;
-      font-style: italic;
-      font-size: .775em;
-    }
+      #version-container {
+        margin-top: -5px;
+        font-style: italic;
+        font-size: 0.775em;
+      }
 
-    #the-title {
-      margin-bottom: 0;
-    }
-  </style>
-</head>
+      #the-title {
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
 
-<body>
-  <div class="container my-2">
-    <div class="text-center mb-4">
-      <i class="bi bi-calendar-week fs-1 text-primary"></i>
-      <h1 class="mt-2" id="the-title">PitaGO</h1>
-      <p class="small text-muted" id="version-container">versione 3</p>
-      <p class="small text-muted" id="date-container"></p>
-    </div>
+  <body>
+    <div class="container my-2">
+      <div class="text-center mb-4">
+        <i class="bi bi-calendar-week fs-1 text-primary"></i>
+        <h1 class="mt-2" id="the-title">PitaGO</h1>
+        <p class="small text-muted" id="version-container">versione 4</p>
+        <p class="small text-muted" id="date-container"></p>
+      </div>
 
-    <div class="card p-4 mb-4">
-      <div class="row g-3 align-items-center">
-        <div class="col-md-6">
-          <label for="docente" class="form-label visually-hidden">Cerca docente...</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input id="docente" type="text" class="form-control" placeholder="Cerca per cognome docente...">
+      <div class="card p-4 mb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-6">
+            <label for="docente" class="form-label visually-hidden"
+              >Cerca docente...</label
+            >
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input
+                id="docente"
+                type="text"
+                class="form-control"
+                placeholder="Cerca per cognome docente..."
+              />
+            </div>
           </div>
-        </div>
-        <div class="col-md-6">
-          <label for="giorno" class="form-label visually-hidden">Filtra per giorno</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-calendar-day"></i></span>
-            <select id="giorno" class="form-select">
-              <option value="">Tutti i giorni (vista settimanale)</option>
-              <option>Lunedì</option>
-              <option>Martedì</option>
-              <option>Mercoledì</option>
-              <option>Giovedì</option>
-              <option>Venerdì</option>
-              <option>Sabato</option>
-            </select>
+          <div class="col-md-6">
+            <label for="giorno" class="form-label visually-hidden"
+              >Filtra per giorno</label
+            >
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="bi bi-calendar-day"></i
+              ></span>
+              <select id="giorno" class="form-select">
+                <option value="">Tutti i giorni (vista settimanale)</option>
+                <option>Lunedì</option>
+                <option>Martedì</option>
+                <option>Mercoledì</option>
+                <option>Giovedì</option>
+                <option>Venerdì</option>
+                <option>Sabato</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
+
+      <div id="results-container"></div>
+
+      <div id="info-message-container" class="info-message">
+        <p id="info-text">
+          Inizia a digitare il cognome di un docente per visualizzarne l'orario
+        </p>
+      </div>
     </div>
 
-    <div id="results-container"></div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((registration) => {
+              console.log(
+                "Service Worker registrato con successo:",
+                registration.scope
+              );
+            })
+            .catch((err) => {
+              console.log("Registrazione del Service Worker fallita:", err);
+            });
+        });
+      }
 
-    <div id="info-message-container" class="info-message">
-      <p id="info-text">Inizia a digitare il cognome di un docente per visualizzarne l'orario</p>
-    </div>
-  </div>
+      let dati = [];
+      let mappaAule = new Map();
+      let tutteLeFasceOrarie = [];
+      const giorniOrario = [
+        "Lunedì",
+        "Martedì",
+        "Mercoledì",
+        "Giovedì",
+        "Venerdì",
+        "Sabato",
+      ];
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(registration => {
-            console.log('Service Worker registrato con successo:', registration.scope);
-          })
-          .catch(err => {
-            console.log('Registrazione del Service Worker fallita:', err);
-          });
-      });
-    }
+      document.addEventListener("DOMContentLoaded", () => {
+        dataCorrente();
 
-    let dati = [];
-    let mappaAule = new Map();
-    let tutteLeFasceOrarie = [];
-    const giorniOrario = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
-
-    document.addEventListener('DOMContentLoaded', () => {
-
-      dataCorrente();
-
-      Promise.all([
-          fetch("orario.csv").then(response => response.ok ? response.text() : Promise.reject('orario.csv non trovato')),
-          fetch("classieaule.csv").then(response => response.ok ? response.text() : Promise.reject('classieaule.csv non trovato'))
+        Promise.all([
+          fetch("orario.csv").then((response) =>
+            response.ok
+              ? response.text()
+              : Promise.reject("orario.csv non trovato")
+          ),
+          fetch("classieaule.csv").then((response) =>
+            response.ok
+              ? response.text()
+              : Promise.reject("classieaule.csv non trovato")
+          ),
         ])
-        .then(([orarioText, auleText]) => {
-          const righeOrario = orarioText.trim().split("\n").slice(1);
-          dati = righeOrario.map(riga => {
-            const colonne = riga.split(",");
-            return {
-              docente: colonne[0],
-              giorno: colonne[1],
-              oraInizio: colonne[2],
-              oraFine: colonne[3],
-              classe: colonne[4]
-            };
-          });
+          .then(([orarioText, auleText]) => {
+            const righeOrario = orarioText.trim().split("\n").slice(1);
+            dati = righeOrario.map((riga) => {
+              const colonne = riga.split(",");
+              return {
+                docente: colonne[0],
+                giorno: colonne[1],
+                oraInizio: colonne[2],
+                oraFine: colonne[3],
+                classe: colonne[4],
+              };
+            });
 
-          const fasceUniche = new Set(dati.map(l => `${l.oraInizio}-${l.oraFine}`));
-          tutteLeFasceOrarie = Array.from(fasceUniche).sort();
+            const fasceUniche = new Set(
+              dati.map((l) => `${l.oraInizio}-${l.oraFine}`)
+            );
+            tutteLeFasceOrarie = Array.from(fasceUniche).sort();
 
-          const righeAule = auleText.trim().split("\n").slice(1);
-          righeAule.forEach(riga => {
-            const colonne = riga.split(";");
-            if (colonne[0]) {
-              mappaAule.set(colonne[0].trim(), {
-                aula: colonne[1].trim(),
-                piano: colonne[2].trim()
-              });
+            const righeAule = auleText.trim().split("\n").slice(1);
+            righeAule.forEach((riga) => {
+              const colonne = riga.split(";");
+              if (colonne[0]) {
+                mappaAule.set(colonne[0].trim(), {
+                  aula: colonne[1].trim(),
+                  piano: colonne[2].trim(),
+                });
+              }
+            });
+
+            popolaDropdownClassi();
+            impostaGiornoCorrente();
+            const docenteSalvato = localStorage.getItem("ultimoDocenteCercato");
+            if (docenteSalvato) {
+              document.getElementById("docente").value = docenteSalvato;
+              filtra();
             }
+          })
+          .catch((error) => {
+            console.error("Dettagli errore:", error);
+            document.getElementById(
+              "info-text"
+            ).textContent = `Impossibile caricare i dati. Errore: ${error}.`;
           });
 
-          popolaDropdownClassi();
-          impostaGiornoCorrente();
-          const docenteSalvato = localStorage.getItem('ultimoDocenteCercato');
-          if (docenteSalvato) {
-            document.getElementById('docente').value = docenteSalvato;
-            filtra();
+        const fab = document.getElementById("fabTrovaAula");
+        const modalElement = document.getElementById("modalTrovaAula");
+        const modal = new bootstrap.Modal(modalElement);
+        const selezionaClasse = document.getElementById("selezionaClasse");
+        const risultatoAula = document.getElementById("risultatoAula");
+
+        fab.addEventListener("click", () => modal.show());
+
+        selezionaClasse.addEventListener("change", () => {
+          const classeSelezionata = selezionaClasse.value;
+          if (!classeSelezionata) {
+            risultatoAula.classList.add("d-none");
+            return;
           }
-        })
-        .catch(error => {
-          console.error("Dettagli errore:", error);
-          document.getElementById("info-text").textContent = `Impossibile caricare i dati. Errore: ${error}.`;
+          const dettagli = mappaAule.get(classeSelezionata);
+          if (dettagli) {
+            risultatoAula.innerHTML = `Aula: <strong>${dettagli.aula}</strong><br/>Piano: <strong>${dettagli.piano}</strong>`;
+            risultatoAula.classList.remove("d-none");
+          }
         });
 
-      const fab = document.getElementById('fabTrovaAula');
-      const modalElement = document.getElementById('modalTrovaAula');
-      const modal = new bootstrap.Modal(modalElement);
-      const selezionaClasse = document.getElementById('selezionaClasse');
-      const risultatoAula = document.getElementById('risultatoAula');
+        modalElement.addEventListener("hidden.bs.modal", () => {
+          risultatoAula.classList.add("d-none");
+          selezionaClasse.value = "";
+        });
+      });
 
-      fab.addEventListener('click', () => modal.show());
+      function dataCorrente() {
+        let data = new Date();
 
-      selezionaClasse.addEventListener('change', () => {
-        const classeSelezionata = selezionaClasse.value;
-        if (!classeSelezionata) {
-          risultatoAula.classList.add('d-none');
+        let giorni = [
+          "domenica",
+          "lunedì",
+          "martedì",
+          "mercoledì",
+          "giovedì",
+          "venerdì",
+          "sabato",
+        ];
+
+        let giornoSettimana = giorni[data.getDay()];
+        let giorno = String(data.getDate()).padStart(2, "0");
+        let mese = String(data.getMonth() + 1).padStart(2, "0");
+        let anno = data.getFullYear();
+
+        document.getElementById(
+          "date-container"
+        ).innerHTML = `Oggi è <span id="current-date">${giornoSettimana} ${giorno}/${mese}/${anno}</span>`;
+      }
+
+      function impostaGiornoCorrente() {
+        const oggi = new Date().getDay();
+        const giorniSettimana = [
+          "",
+          "Lunedì",
+          "Martedì",
+          "Mercoledì",
+          "Giovedì",
+          "Venerdì",
+          "Sabato",
+        ];
+        const giornoCorrente = giorniSettimana[oggi];
+        if (giornoCorrente) {
+          document.getElementById("giorno").value = giornoCorrente;
+        }
+      }
+
+      function filtra() {
+        var docenteCercato = document
+          .getElementById("docente")
+          .value.toLowerCase();
+        console.log(docenteCercato);
+        docenteCercato = docenteCercato.replace(/[‘’`]/g, "'");
+        console.log(docenteCercato);
+        const giornoSelezionato = document.getElementById("giorno").value;
+        localStorage.setItem("ultimoDocenteCercato", docenteCercato);
+
+        const resultsContainer = document.getElementById("results-container");
+        const infoContainer = document.getElementById("info-message-container");
+        const infoText = document.getElementById("info-text");
+
+        resultsContainer.innerHTML = "";
+
+        if (docenteCercato === "") {
+          resultsContainer.classList.add("d-none");
+          infoContainer.classList.remove("d-none");
+          infoText.textContent =
+            "Inizia a digitare il cognome di un docente per visualizzare l'orario.";
           return;
         }
-        const dettagli = mappaAule.get(classeSelezionata);
-        if (dettagli) {
-          risultatoAula.innerHTML = `Aula: <strong>${dettagli.aula}</strong><br/>Piano: <strong>${dettagli.piano}</strong>`;
-          risultatoAula.classList.remove('d-none');
+
+        const datiFiltrati = dati.filter((d) =>
+          d.docente
+            .toLowerCase()
+            .replace(/[‘’`]/g, "'")
+            .startsWith(docenteCercato)
+        );
+        const docentiRaggruppati = datiFiltrati.reduce((acc, lezione) => {
+          acc[lezione.docente] = acc[lezione.docente] || [];
+          acc[lezione.docente].push(lezione);
+          return acc;
+        }, {});
+
+        if (Object.keys(docentiRaggruppati).length === 0) {
+          resultsContainer.classList.add("d-none");
+          infoContainer.classList.remove("d-none");
+          infoText.textContent = "Nessun docente trovato con questo cognome.";
+          return;
         }
-      });
 
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        risultatoAula.classList.add('d-none');
-        selezionaClasse.value = "";
-      });
+        resultsContainer.classList.remove("d-none");
+        infoContainer.classList.add("d-none");
 
-    });
+        for (const nomeDocente in docentiRaggruppati) {
+          const lezioniDocente = docentiRaggruppati[nomeDocente];
+          const card = document.createElement("div");
+          card.className = "card mb-4";
 
-    function dataCorrente() {
-      let data = new Date();
+          let cardBody = "";
+          if (giornoSelezionato === "") {
+            cardBody = creaTabellaSettimanale(lezioniDocente);
+          } else {
+            const haLezioniNelGiorno = lezioniDocente.some(
+              (l) => l.giorno === giornoSelezionato
+            );
 
-      let giorni = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
-
-      let giornoSettimana = giorni[data.getDay()];
-      let giorno = String(data.getDate()).padStart(2, "0");
-      let mese = String(data.getMonth() + 1).padStart(2, "0");
-      let anno = data.getFullYear();
-
-      document.getElementById("date-container").innerHTML = `Oggi è <span id="current-date">${giornoSettimana} ${giorno}/${mese}/${anno}</span>`;
-    }
-
-    function impostaGiornoCorrente() {
-      const oggi = new Date().getDay();
-      const giorniSettimana = ["", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
-      const giornoCorrente = giorniSettimana[oggi];
-      if (giornoCorrente) {
-        document.getElementById("giorno").value = giornoCorrente;
-      }
-    }
-
-    function filtra() {
-      var docenteCercato = document.getElementById("docente").value.toLowerCase();
-      console.log(docenteCercato);
-      docenteCercato = docenteCercato.replace(/[‘’`]/g, "'");
-      console.log(docenteCercato);
-      const giornoSelezionato = document.getElementById("giorno").value;
-      localStorage.setItem('ultimoDocenteCercato', docenteCercato);
-
-      const resultsContainer = document.getElementById("results-container");
-      const infoContainer = document.getElementById("info-message-container");
-      const infoText = document.getElementById("info-text");
-
-      resultsContainer.innerHTML = "";
-
-      if (docenteCercato === "") {
-        resultsContainer.classList.add('d-none');
-        infoContainer.classList.remove('d-none');
-        infoText.textContent = "Inizia a digitare il cognome di un docente per visualizzare l'orario.";
-        return;
-      }
-
-      const datiFiltrati = dati.filter(d => d.docente.toLowerCase().replace(/[‘’`]/g, "'").startsWith(docenteCercato));
-      const docentiRaggruppati = datiFiltrati.reduce((acc, lezione) => {
-        acc[lezione.docente] = acc[lezione.docente] || [];
-        acc[lezione.docente].push(lezione);
-        return acc;
-      }, {});
-
-      if (Object.keys(docentiRaggruppati).length === 0) {
-        resultsContainer.classList.add('d-none');
-        infoContainer.classList.remove('d-none');
-        infoText.textContent = "Nessun docente trovato con questo cognome.";
-        return;
-      }
-
-      resultsContainer.classList.remove('d-none');
-      infoContainer.classList.add('d-none');
-
-      for (const nomeDocente in docentiRaggruppati) {
-        const lezioniDocente = docentiRaggruppati[nomeDocente];
-        const card = document.createElement('div');
-        card.className = 'card mb-4';
-
-        let cardBody = '';
-        if (giornoSelezionato === "") {
-          cardBody = creaTabellaSettimanale(lezioniDocente);
-        } else {
-          const haLezioniNelGiorno = lezioniDocente.some(l => l.giorno === giornoSelezionato);
-
-          if (haLezioniNelGiorno) {
-            cardBody = creaListaGiornaliera(lezioniDocente, giornoSelezionato);
+            if (haLezioniNelGiorno) {
+              cardBody = creaListaGiornaliera(
+                lezioniDocente,
+                giornoSelezionato
+              );
+            }
           }
-        }
 
-        if (cardBody) {
-          card.innerHTML = `
+          if (cardBody) {
+            card.innerHTML = `
                     <div class="card-header bg-primary text-white">
                         <h5 class="card-title mb-0">${nomeDocente}</h5>
                     </div>
                     <div class="card-body">${cardBody}</div>
                 `;
-          resultsContainer.appendChild(card);
+            resultsContainer.appendChild(card);
+          }
+        }
+
+        if (resultsContainer.children.length === 0) {
+          infoContainer.classList.remove("d-none");
+          infoText.textContent = `Nessuna lezione trovata per ${giornoSelezionato}.`;
         }
       }
 
-      if (resultsContainer.children.length === 0) {
-        infoContainer.classList.remove('d-none');
-        infoText.textContent = `Nessuna lezione trovata per ${giornoSelezionato}.`;
-      }
-    }
-
-    function creaTabellaSettimanale(lezioni) {
+      function creaTabellaSettimanale(lezioni) {
         const orarioPerGiorno = {};
-        giorniOrario.forEach(giorno => {
-            const lezioniDelGiorno = lezioni
-                .filter(l => l.giorno === giorno)
-                .sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
+        giorniOrario.forEach((giorno) => {
+          const lezioniDelGiorno = lezioni
+            .filter((l) => l.giorno === giorno)
+            .sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
 
-            let primoIndice = -1;
-            let ultimoIndice = -1;
-            
-            if (lezioniDelGiorno.length > 1) {
-                const fasceOrarieGiorno = lezioniDelGiorno.map(l => `${l.oraInizio}-${l.oraFine}`);
-                primoIndice = tutteLeFasceOrarie.indexOf(fasceOrarieGiorno[0]);
-                ultimoIndice = tutteLeFasceOrarie.indexOf(fasceOrarieGiorno[fasceOrarieGiorno.length - 1]);
-            }
-            
-            orarioPerGiorno[giorno] = { primoIndice, ultimoIndice };
+          let primoIndice = -1;
+          let ultimoIndice = -1;
+
+          if (lezioniDelGiorno.length > 1) {
+            const fasceOrarieGiorno = lezioniDelGiorno.map(
+              (l) => `${l.oraInizio}-${l.oraFine}`
+            );
+            primoIndice = tutteLeFasceOrarie.indexOf(fasceOrarieGiorno[0]);
+            ultimoIndice = tutteLeFasceOrarie.indexOf(
+              fasceOrarieGiorno[fasceOrarieGiorno.length - 1]
+            );
+          }
+
+          orarioPerGiorno[giorno] = { primoIndice, ultimoIndice };
         });
 
         let auleMap = {};
-        lezioni.forEach(l => {
-            const key = `${l.oraInizio}-${l.oraFine}|${l.giorno}`;
-            auleMap[key] = l.classe;
+        lezioni.forEach((l) => {
+          const key = `${l.oraInizio}-${l.oraFine}|${l.giorno}`;
+          auleMap[key] = l.classe;
         });
 
-        let headHTML = giorniOrario.map(g => `<th>${g}</th>`).join('');
-        let bodyHTML = tutteLeFasceOrarie.map((fascia, index) => {
-            let celle = giorniOrario.map(giorno => {
+        let headHTML = giorniOrario.map((g) => `<th>${g}</th>`).join("");
+        let bodyHTML = tutteLeFasceOrarie
+          .map((fascia, index) => {
+            let celle = giorniOrario
+              .map((giorno) => {
                 const key = `${fascia}|${giorno}`;
                 const classe = auleMap[key];
-                
+
                 if (classe) {
-                    return `<td><span class="badge bg-primary rounded-pill">${classe}</span></td>`;
+                  return `<td><span class="badge bg-primary rounded-pill">${classe}</span></td>`;
                 } else {
-                    const { primoIndice, ultimoIndice } = orarioPerGiorno[giorno];
-                    if (primoIndice !== -1 && index > primoIndice && index < ultimoIndice) {
-                        return `<td><span class="text-primary fst-italic"><i class="bi bi-cup-hot"></i></span></td>`;
-                    } else {
-                        return `<td><span class="text-muted"></span></td>`;
-                    }
+                  const { primoIndice, ultimoIndice } = orarioPerGiorno[giorno];
+                  if (
+                    primoIndice !== -1 &&
+                    index > primoIndice &&
+                    index < ultimoIndice
+                  ) {
+                    return `<td><span class="text-primary fst-italic"><i class="bi bi-cup-hot"></i></span></td>`;
+                  } else {
+                    return `<td><span class="text-muted"></span></td>`;
+                  }
                 }
-            }).join('');
-            return `<tr><td class="ora-header">${fascia.replace('-', ' - ')}</td>${celle}</tr>`;
-        }).join('');
+              })
+              .join("");
+            return `<tr><td class="ora-header">${fascia.replace(
+              "-",
+              " - "
+            )}</td>${celle}</tr>`;
+          })
+          .join("");
 
         return `
             <div class="table-responsive">
@@ -405,105 +496,132 @@
                 </table>
             </div>
         `;
-    }
-
-    function creaListaGiornaliera(lezioni, giorno) {
-      const lezioniDelGiorno = lezioni
-        .filter(l => l.giorno === giorno)
-        .sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
-
-      let primoIndiceLezione = -1;
-      let ultimoIndiceLezione = -1;
-      if (lezioniDelGiorno.length > 1) {
-        const fasceOrarieDelDocente = lezioniDelGiorno.map(l => `${l.oraInizio}-${l.oraFine}`);
-        primoIndiceLezione = tutteLeFasceOrarie.indexOf(fasceOrarieDelDocente[0]);
-        ultimoIndiceLezione = tutteLeFasceOrarie.indexOf(fasceOrarieDelDocente[fasceOrarieDelDocente.length - 1]);
       }
 
-      const mappaLezioniGiorno = new Map();
-      lezioniDelGiorno.forEach(l => {
-        const fascia = `${l.oraInizio}-${l.oraFine}`;
-        mappaLezioniGiorno.set(fascia, l.classe);
-      });
+      function creaListaGiornaliera(lezioni, giorno) {
+        const lezioniDelGiorno = lezioni
+          .filter((l) => l.giorno === giorno)
+          .sort((a, b) => a.oraInizio.localeCompare(b.oraInizio));
 
-      let righeHTML = tutteLeFasceOrarie.map((fascia, index) => {
-        const classe = mappaLezioniGiorno.get(fascia);
-        let cellaClasseHTML = '';
-
-        if (classe) {
-          const dettagliAula = mappaAule.get(classe);
-          let infoExtra = '';
-          if (dettagliAula) {
-            infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
-          }
-          cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
-        } else {
-          if (primoIndiceLezione !== -1 && index > primoIndiceLezione && index < ultimoIndiceLezione) {
-            cellaClasseHTML = `<span class="text-primary">Ora libera <i class="bi bi-cup-hot"></i></span>`;
-          } else {
-            cellaClasseHTML = '<span class="text-muted"></span>';
-          }
+        let primoIndiceLezione = -1;
+        let ultimoIndiceLezione = -1;
+        if (lezioniDelGiorno.length > 1) {
+          const fasceOrarieDelDocente = lezioniDelGiorno.map(
+            (l) => `${l.oraInizio}-${l.oraFine}`
+          );
+          primoIndiceLezione = tutteLeFasceOrarie.indexOf(
+            fasceOrarieDelDocente[0]
+          );
+          ultimoIndiceLezione = tutteLeFasceOrarie.indexOf(
+            fasceOrarieDelDocente[fasceOrarieDelDocente.length - 1]
+          );
         }
 
-        const [oraInizio, oraFine] = fascia.split('-');
-        return `
+        const mappaLezioniGiorno = new Map();
+        lezioniDelGiorno.forEach((l) => {
+          const fascia = `${l.oraInizio}-${l.oraFine}`;
+          mappaLezioniGiorno.set(fascia, l.classe);
+        });
+
+        let righeHTML = tutteLeFasceOrarie
+          .map((fascia, index) => {
+            const classe = mappaLezioniGiorno.get(fascia);
+            let cellaClasseHTML = "";
+
+            if (classe) {
+              const dettagliAula = mappaAule.get(classe);
+              let infoExtra = "";
+              if (dettagliAula) {
+                infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
+              }
+              cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
+            } else {
+              if (
+                primoIndiceLezione !== -1 &&
+                index > primoIndiceLezione &&
+                index < ultimoIndiceLezione
+              ) {
+                cellaClasseHTML = `<span class="text-primary">Ora libera <i class="bi bi-cup-hot"></i></span>`;
+              } else {
+                cellaClasseHTML = '<span class="text-muted"></span>';
+              }
+            }
+
+            const [oraInizio, oraFine] = fascia.split("-");
+            return `
         <tr>
             <td>${oraInizio} - ${oraFine}</td>
             <td>${cellaClasseHTML}</td>
         </tr>
         `;
-      }).join('');
+          })
+          .join("");
 
-      return `
+        return `
         <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
         <table class="table table-striped">
             <thead><tr><th>Orario</th><th>Classe - Aula (piano)</th></tr></thead>
             <tbody>${righeHTML}</tbody>
         </table>
     `;
-    }
+      }
 
-    function popolaDropdownClassi() {
-      const dropdown = document.getElementById('selezionaClasse');
-      const classi = Array.from(mappaAule.keys()).sort();
+      function popolaDropdownClassi() {
+        const dropdown = document.getElementById("selezionaClasse");
+        const classi = Array.from(mappaAule.keys()).sort();
 
-      classi.forEach(classe => {
-        const option = document.createElement('option');
-        option.value = classe;
-        option.textContent = classe;
-        dropdown.appendChild(option);
-      });
-    }
+        classi.forEach((classe) => {
+          const option = document.createElement("option");
+          option.value = classe;
+          option.textContent = classe;
+          dropdown.appendChild(option);
+        });
+      }
 
-    document.getElementById("docente").addEventListener('input', filtra);
-    document.getElementById("giorno").addEventListener('change', filtra);
-  </script>
+      document.getElementById("docente").addEventListener("input", filtra);
+      document.getElementById("giorno").addEventListener("change", filtra);
+    </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <div class="modal fade" id="modalTrovaAula" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">Cerca aula per classe</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Seleziona una classe dall'elenco per visualizzare l'aula e il piano corrispondenti.</p>
-          <select class="form-select" id="selezionaClasse">
-            <option value="">-- Seleziona una classe --</option>
-          </select>
-          <div id="risultatoAula" class="alert alert-info mt-3 d-none">
+    <div
+      class="modal fade"
+      id="modalTrovaAula"
+      tabindex="-1"
+      aria-labelledby="modalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">Cerca aula per classe</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Seleziona una classe dall'elenco per visualizzare l'aula e il
+              piano corrispondenti.
+            </p>
+            <select class="form-select" id="selezionaClasse">
+              <option value="">-- Seleziona una classe --</option>
+            </select>
+            <div id="risultatoAula" class="alert alert-info mt-3 d-none"></div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <nav class="navbar fixed-bottom navbar-light bg-light d-flex justify-content-around">
-    <button class="btn btn-light" id="fabTrovaAula"><i class="bi bi-search"></i><br>Cerca aula</button>
-  </nav>
-
-</body>
-
+    <nav
+      class="navbar fixed-bottom navbar-light bg-light d-flex justify-content-around"
+    >
+      <button class="btn btn-light" id="fabTrovaAula">
+        <i class="bi bi-search"></i><br />Cerca aula
+      </button>
+    </nav>
+  </body>
 </html>
