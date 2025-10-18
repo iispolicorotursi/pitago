@@ -138,7 +138,7 @@
       <div class="text-center mb-4">
         <i class="bi bi-calendar-week fs-1 text-primary"></i>
         <h1 class="mt-2" id="the-title">PitaGO</h1>
-        <p class="small text-muted" id="version-container">versione 4.1</p>
+        <p class="small text-muted" id="version-container">versione 5</p>
         <p class="small text-muted" id="date-container"></p>
       </div>
 
@@ -348,9 +348,7 @@
         var docenteCercato = document
           .getElementById("docente")
           .value.toLowerCase();
-        console.log(docenteCercato);
         docenteCercato = docenteCercato.replace(/[‘’`]/g, "'");
-        console.log(docenteCercato);
         const giornoSelezionato = document.getElementById("giorno").value;
         localStorage.setItem("ultimoDocenteCercato", docenteCercato);
 
@@ -466,7 +464,13 @@
                 const classe = auleMap[key];
 
                 if (classe) {
-                  return `<td><span class="badge bg-primary rounded-pill">${classe}</span></td>`;
+                  if (classe.indexOf("(P)") == -1)
+                    return `<td><span class="badge bg-primary rounded-pill">${classe}</span></td>`;
+                  else
+                    return `<td><span class="badge bg-danger rounded-pill">${classe.slice(
+                      0,
+                      -4
+                    )}</span></td>`;
                 } else {
                   const { primoIndice, ultimoIndice } = orarioPerGiorno[giorno];
                   if (
@@ -474,7 +478,7 @@
                     index > primoIndice &&
                     index < ultimoIndice
                   ) {
-                    return `<td><span class="text-primary fst-italic"><i class="bi bi-cup-hot"></i></span></td>`;
+                    return `<td><span class="text-primary fst-italic"><img src="caffettino.gif" style="width:22px;height:22px;"/></span></td>`;
                   } else {
                     return `<td><span class="text-muted"></span></td>`;
                   }
@@ -534,14 +538,20 @@
               if (dettagliAula) {
                 infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
               }
-              cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
+              if (classe.indexOf("(P)") == -1)
+                cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
+              else
+                cellaClasseHTML = `<span class="badge bg-danger rounded-pill fs-6">${classe.slice(
+                  0,
+                  -4
+                )}${infoExtra}</span>`;
             } else {
               if (
                 primoIndiceLezione !== -1 &&
                 index > primoIndiceLezione &&
                 index < ultimoIndiceLezione
               ) {
-                cellaClasseHTML = `<span class="text-primary">Ora libera <i class="bi bi-cup-hot"></i></span>`;
+                cellaClasseHTML = `<span class="text-primary">Ora libera <img src="caffettino.gif" style="width:22px;height:22px;"/></span>`;
               } else {
                 cellaClasseHTML = '<span class="text-muted"></span>';
               }
