@@ -537,9 +537,12 @@
             let cellaClasseHTML = "";
 
             if (classe) {
-              const dettagliAula = mappaAule.get(
-                classe.replace(/\r/g, "").trim()
-              );
+              const dettagliAula =
+                classe.indexOf("(P)") == -1
+                  ? mappaAule.get(classe.replace(/\r/g, "").trim())
+                  : mappaAule.get(
+                      classe.replace(/\r/g, "").trim().slice(0, -3)
+                    );
               let infoExtra = "";
               if (dettagliAula) {
                 infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
