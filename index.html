@@ -415,11 +415,11 @@
 
           if (cardBody) {
             card.innerHTML = `
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">${nomeDocente}</h5>
-                    </div>
-                    <div class="card-body">${cardBody}</div>
-                `;
+                      <div class="card-header bg-primary text-white">
+                          <h5 class="card-title mb-0">${nomeDocente}</h5>
+                      </div>
+                      <div class="card-body">${cardBody}</div>
+                  `;
             resultsContainer.appendChild(card);
           }
         }
@@ -497,13 +497,13 @@
           .join("");
 
         return `
-            <div class="table-responsive">
-                <table class="table orario-settimanale-table">
-                    <thead><tr><th class="ora-header">Ora</th>${headHTML}</tr></thead>
-                    <tbody>${bodyHTML}</tbody>
-                </table>
-            </div>
-        `;
+              <div class="table-responsive">
+                  <table class="table orario-settimanale-table">
+                      <thead><tr><th class="ora-header">Ora</th>${headHTML}</tr></thead>
+                      <tbody>${bodyHTML}</tbody>
+                  </table>
+              </div>
+          `;
       }
 
       function creaListaGiornaliera(lezioni, giorno) {
@@ -537,7 +537,9 @@
             let cellaClasseHTML = "";
 
             if (classe) {
-              const dettagliAula = mappaAule.get(classe);
+              const dettagliAula = mappaAule.get(
+                classe.replace(/\r/g, "").trim()
+              );
               let infoExtra = "";
               if (dettagliAula) {
                 infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
@@ -563,21 +565,21 @@
 
             const [oraInizio, oraFine] = fascia.split("-");
             return `
-        <tr>
-            <td>${oraInizio} - ${oraFine}</td>
-            <td>${cellaClasseHTML}</td>
-        </tr>
-        `;
+          <tr>
+              <td>${oraInizio} - ${oraFine}</td>
+              <td>${cellaClasseHTML}</td>
+          </tr>
+          `;
           })
           .join("");
 
         return `
-        <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
-        <table class="table table-striped">
-            <thead><tr><th>Orario</th><th>Classe - Aula (piano)</th></tr></thead>
-            <tbody>${righeHTML}</tbody>
-        </table>
-    `;
+          <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
+          <table class="table table-striped">
+              <thead><tr><th>Orario</th><th>Classe - Aula (piano)</th></tr></thead>
+              <tbody>${righeHTML}</tbody>
+          </table>
+      `;
       }
 
       function popolaDropdownClassi() {
