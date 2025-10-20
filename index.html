@@ -134,6 +134,24 @@
       .table-striped td {
         vertical-align: middle;
       }
+      .sede-toggle .btn {
+        border-radius: 30px;
+        padding: 6px 18px;
+        font-weight: 600;
+        transition: all 0.25s ease-in-out;
+      }
+
+      .sede-toggle .btn.active {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        /* box-shadow: 0 0 10px rgba(13, 110, 253, 0.3); */
+      }
+
+      .sede-toggle .btn:not(.active):hover {
+        background-color: rgba(13, 110, 253, 0.08);
+        color: #0d6efd;
+      }
     </style>
   </head>
 
@@ -142,8 +160,33 @@
       <div class="text-center mb-4">
         <i class="bi bi-calendar-week fs-1 text-primary"></i>
         <h1 class="mt-2" id="the-title">PitaGO</h1>
-        <p class="small text-muted" id="version-container">versione 5</p>
+        <p class="small text-muted" id="version-container">versione 6</p>
         <p class="small text-muted" id="date-container"></p>
+      </div>
+
+      <div class="d-flex justify-content-center mb-4">
+        <div
+          class="btn-group sede-toggle"
+          role="group"
+          aria-label="Seleziona sede"
+        >
+          <button
+            type="button"
+            class="btn btn-primary active"
+            id="tab-policoro"
+            data-sede="policoro"
+          >
+            <i class="bi bi-geo-alt-fill me-1"></i> Sede di Policoro
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            id="tab-tursi"
+            data-sede="tursi"
+          >
+            <i class="bi bi-geo-alt-fill me-1"></i> Sede di Tursi
+          </button>
+        </div>
       </div>
 
       <div class="card p-4 mb-4">
@@ -225,61 +268,89 @@
       document.addEventListener("DOMContentLoaded", () => {
         dataCorrente();
 
-        Promise.all([
-          fetch("orario.csv").then((response) =>
-            response.ok
-              ? response.text()
-              : Promise.reject("orario.csv non trovato")
-          ),
-          fetch("classieaule.csv").then((response) =>
-            response.ok
-              ? response.text()
-              : Promise.reject("classieaule.csv non trovato")
-          ),
-        ])
-          .then(([orarioText, auleText]) => {
-            const righeOrario = orarioText.trim().split("\n").slice(1);
-            dati = righeOrario.map((riga) => {
-              const colonne = riga.split(",");
-              return {
-                docente: colonne[0],
-                giorno: colonne[1],
-                oraInizio: colonne[2],
-                oraFine: colonne[3],
-                classe: colonne[4],
-              };
-            });
+        let sedeCorrente = localStorage.getItem("sedeCorrente") || "policoro";
 
-            const fasceUniche = new Set(
-              dati.map((l) => `${l.oraInizio}-${l.oraFine}`)
-            );
-            tutteLeFasceOrarie = Array.from(fasceUniche).sort();
+        caricaDati(sedeCorrente);
 
-            const righeAule = auleText.trim().split("\n").slice(1);
-            righeAule.forEach((riga) => {
-              const colonne = riga.split(";");
-              if (colonne[0]) {
-                mappaAule.set(colonne[0].trim(), {
-                  aula: colonne[1].trim(),
-                  piano: colonne[2].trim(),
-                });
+        function caricaDati(sede) {
+          const fileOrario =
+            sede === "tursi" ? "orario_tursi.csv" : "orario.csv";
+          dati = [];
+          mappaAule.clear();
+
+          Promise.all([
+            fetch(fileOrario).then((response) =>
+              response.ok
+                ? response.text()
+                : Promise.reject(`${fileOrario} non trovato`)
+            ),
+            fetch("classieaule.csv").then((response) =>
+              response.ok
+                ? response.text()
+                : Promise.reject("classieaule.csv non trovato")
+            ),
+          ])
+            .then(([orarioText, auleText]) => {
+              const righeOrario = orarioText.trim().split("\n").slice(1);
+              dati = righeOrario.map((riga) => {
+                const colonne = riga.split(",");
+                return {
+                  docente: colonne[0],
+                  giorno: colonne[1],
+                  oraInizio: colonne[2],
+                  oraFine: colonne[3],
+                  classe: colonne[4],
+                };
+              });
+
+              const fasceUniche = new Set(
+                dati.map((l) => `${l.oraInizio}-${l.oraFine}`)
+              );
+              tutteLeFasceOrarie = Array.from(fasceUniche).sort();
+
+              const righeAule = auleText.trim().split("\n").slice(1);
+              righeAule.forEach((riga) => {
+                const colonne = riga.split(";");
+                if (colonne[0]) {
+                  mappaAule.set(colonne[0].trim(), {
+                    aula: colonne[1].trim(),
+                    piano: colonne[2].trim(),
+                  });
+                }
+              });
+
+              popolaDropdownClassi();
+              impostaGiornoCorrente();
+              const docenteSalvato = localStorage.getItem(
+                "ultimoDocenteCercato"
+              );
+              if (docenteSalvato) {
+                document.getElementById("docente").value = docenteSalvato;
+                filtra();
               }
+            })
+            .catch((error) => {
+              console.error("Dettagli errore:", error);
+              document.getElementById(
+                "info-text"
+              ).textContent = `Impossibile caricare i dati. Errore: ${error}.`;
             });
+        }
 
-            popolaDropdownClassi();
-            impostaGiornoCorrente();
-            const docenteSalvato = localStorage.getItem("ultimoDocenteCercato");
-            if (docenteSalvato) {
-              document.getElementById("docente").value = docenteSalvato;
-              filtra();
-            }
-          })
-          .catch((error) => {
-            console.error("Dettagli errore:", error);
-            document.getElementById(
-              "info-text"
-            ).textContent = `Impossibile caricare i dati. Errore: ${error}.`;
+        document.querySelectorAll(".sede-toggle .btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".sede-toggle .btn").forEach((b) => {
+              b.classList.remove("active", "btn-primary");
+              b.classList.add("btn-outline-primary");
+            });
+            btn.classList.remove("btn-outline-primary");
+            btn.classList.add("active", "btn-primary");
+
+            sedeCorrente = btn.dataset.sede;
+            localStorage.setItem("sedeCorrente", sedeCorrente);
+            caricaDati(sedeCorrente);
           });
+        });
 
         const fab = document.getElementById("fabTrovaAula");
         const modalElement = document.getElementById("modalTrovaAula");
@@ -613,7 +684,9 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="modalLabel">Cerca aula per classe</h5>
+            <h5 class="modal-title" id="modalLabel">
+              Cerca aula per classe (sede di Policoro)
+            </h5>
             <button
               type="button"
               class="btn-close"
