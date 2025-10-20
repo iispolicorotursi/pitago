@@ -269,8 +269,15 @@
         dataCorrente();
 
         let sedeCorrente = localStorage.getItem("sedeCorrente") || "policoro";
+        aggiornaPulsantiSede(sedeCorrente);
 
-        caricaDati(sedeCorrente);
+        caricaDati(sedeCorrente).then(() => {
+          const docenteSalvato = localStorage.getItem("ultimoDocenteCercato");
+          if (docenteSalvato) {
+            document.getElementById("docente").value = docenteSalvato;
+            filtra();
+          }
+        });
 
         function caricaDati(sede) {
           const fileOrario =
@@ -278,7 +285,7 @@
           dati = [];
           mappaAule.clear();
 
-          Promise.all([
+          return Promise.all([
             fetch(fileOrario).then((response) =>
               response.ok
                 ? response.text()
@@ -321,13 +328,6 @@
 
               popolaDropdownClassi();
               impostaGiornoCorrente();
-              const docenteSalvato = localStorage.getItem(
-                "ultimoDocenteCercato"
-              );
-              if (docenteSalvato) {
-                document.getElementById("docente").value = docenteSalvato;
-                filtra();
-              }
             })
             .catch((error) => {
               console.error("Dettagli errore:", error);
@@ -348,9 +348,25 @@
 
             sedeCorrente = btn.dataset.sede;
             localStorage.setItem("sedeCorrente", sedeCorrente);
-            caricaDati(sedeCorrente);
+
+            // 🧠 Ricarica dati e riapplica il docente cercato solo dopo il fetch
+            caricaDati(sedeCorrente).then(() => {
+              const docenteSalvato = localStorage.getItem(
+                "ultimoDocenteCercato"
+              );
+              if (docenteSalvato) filtra();
+            });
           });
         });
+
+        function aggiornaPulsantiSede(sedeCorrente) {
+          document.querySelectorAll(".sede-toggle .btn").forEach((btn) => {
+            const isActive = btn.dataset.sede === sedeCorrente;
+            btn.classList.toggle("active", isActive);
+            btn.classList.toggle("btn-primary", isActive);
+            btn.classList.toggle("btn-outline-primary", !isActive);
+          });
+        }
 
         const fab = document.getElementById("fabTrovaAula");
         const modalElement = document.getElementById("modalTrovaAula");
