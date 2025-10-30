@@ -160,7 +160,7 @@
       <div class="text-center mb-4">
         <i class="bi bi-calendar-week fs-1 text-primary"></i>
         <h1 class="mt-2" id="the-title">PitaGO</h1>
-        <p class="small text-muted" id="version-container">versione 7</p>
+        <p class="small text-muted" id="version-container">versione 8</p>
         <p class="small text-muted" id="date-container"></p>
       </div>
 
@@ -555,8 +555,16 @@
                 const classe = auleMap[key];
 
                 if (classe) {
-                  if (classe.indexOf("(P)") == -1)
+                  if (
+                    classe.indexOf("(P)") == -1 &&
+                    classe.indexOf("(S)") == -1
+                  )
                     return `<td><span class="badge bg-primary rounded-pill">${classe}</span></td>`;
+                  else if (classe.indexOf("(S)") != -1)
+                    return `<td><span class="badge bg-success rounded-pill">${classe.slice(
+                      0,
+                      -4
+                    )}</span></td>`;
                   else
                     return `<td><span class="badge bg-danger rounded-pill">${classe.slice(
                       0,
@@ -624,8 +632,9 @@
             let cellaClasseHTML = "";
 
             if (classe) {
+              console.log(classe.indexOf("(S)"));
               const dettagliAula =
-                classe.indexOf("(P)") == -1
+                classe.indexOf("(P)") == -1 && classe.indexOf("(S)") == -1
                   ? mappaAule.get(classe.replace(/\r/g, "").trim())
                   : mappaAule.get(
                       classe.replace(/\r/g, "").trim().slice(0, -3)
@@ -634,8 +643,13 @@
               if (dettagliAula) {
                 infoExtra = ` <small class="opacity-75">- ${dettagliAula.aula} (${dettagliAula.piano})</small>`;
               }
-              if (classe.indexOf("(P)") == -1)
+              if (classe.indexOf("(P)") == -1 && classe.indexOf("(S)") == -1)
                 cellaClasseHTML = `<span class="badge bg-primary rounded-pill fs-6">${classe}${infoExtra}</span>`;
+              else if (classe.indexOf("(S)") != -1)
+                cellaClasseHTML = `<span class="badge bg-success rounded-pill fs-6">${classe.slice(
+                  0,
+                  -4
+                )}${infoExtra}</span>`;
               else
                 cellaClasseHTML = `<span class="badge bg-danger rounded-pill fs-6">${classe.slice(
                   0,
