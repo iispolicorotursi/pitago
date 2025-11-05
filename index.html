@@ -152,6 +152,19 @@
         background-color: rgba(13, 110, 253, 0.08);
         color: #0d6efd;
       }
+
+      .navbar.fixed-bottom {
+        border-top: 1px solid #dee2e6;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+      .btn-light i {
+        font-size: 1.3rem;
+      }
+      .btn-light {
+        font-size: 0.8rem;
+        line-height: 1.2;
+      }
     </style>
   </head>
 
@@ -160,7 +173,7 @@
       <div class="text-center mb-4">
         <i class="bi bi-calendar-week fs-1 text-primary"></i>
         <h1 class="mt-2" id="the-title">PitaGO</h1>
-        <p class="small text-muted" id="version-container">versione 8</p>
+        <p class="small text-muted" id="version-container">versione 9</p>
         <p class="small text-muted" id="date-container"></p>
       </div>
 
@@ -256,6 +269,7 @@
       let dati = [];
       let mappaAule = new Map();
       let tutteLeFasceOrarie = [];
+      let sedeCorrente = localStorage.getItem("sedeCorrente") || "policoro";
       const giorniOrario = [
         "Lunedì",
         "Martedì",
@@ -268,7 +282,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         dataCorrente();
 
-        let sedeCorrente = localStorage.getItem("sedeCorrente") || "policoro";
+        // let sedeCorrente = localStorage.getItem("sedeCorrente") || "policoro";
         aggiornaPulsantiSede(sedeCorrente);
 
         caricaDati(sedeCorrente).then(() => {
@@ -318,10 +332,11 @@
               const righeAule = auleText.trim().split("\n").slice(1);
               righeAule.forEach((riga) => {
                 const colonne = riga.split(";");
-                if (colonne[0]) {
-                  mappaAule.set(colonne[0].trim(), {
-                    aula: colonne[1].trim(),
-                    piano: colonne[2].trim(),
+                const chiave = normalizeClasse(colonne[0]);
+                if (chiave) {
+                  mappaAule.set(chiave, {
+                    aula: (colonne[1] || "").trim(),
+                    piano: (colonne[2] || "").trim(),
                   });
                 }
               });
@@ -393,7 +408,135 @@
           risultatoAula.classList.add("d-none");
           selezionaClasse.value = "";
         });
+
+        // ===== ORARIO PER CLASSE =====
+        // ===== ORARIO PER CLASSE =====
+        const fabOrarioClasse = document.getElementById("fabOrarioClasse");
+        const modalOrarioClasseEl =
+          document.getElementById("modalOrarioClasse");
+        const modalOrarioClasse = new bootstrap.Modal(modalOrarioClasseEl);
+        const selezionaClasseOrario = document.getElementById(
+          "selezionaClasseOrario"
+        );
+        const risultatoOrarioClasse = document.getElementById(
+          "risultatoOrarioClasse"
+        );
+
+        fabOrarioClasse.addEventListener("click", async () => {
+          // Ricarica dati per la sede attuale (se necessario)
+          await caricaDati(sedeCorrente);
+
+          // Aggiorna titolo con la sede attiva
+          document.getElementById(
+            "modalClasseLabel"
+          ).textContent = `Orario per classe (${
+            sedeCorrente.charAt(0).toUpperCase() + sedeCorrente.slice(1)
+          })`;
+
+          // 🔹 Popola elenco classi (solo reali, deduplicate, senza (P)/(S))
+          selezionaClasseOrario.innerHTML =
+            '<option value="">-- Seleziona una classe --</option>';
+
+          const classiUniche = Array.from(
+            new Set(
+              dati
+                .map((d) => normalizeClasse(d.classe))
+                .filter((c) => c) // non vuoti
+                .filter((c) => /^[1-5]/.test(c)) // inizia con cifra
+            )
+          ).sort();
+
+          classiUniche.forEach((classe) => {
+            const option = document.createElement("option");
+            option.value = classe;
+            option.textContent = classe;
+            selezionaClasseOrario.appendChild(option);
+          });
+
+          risultatoOrarioClasse.innerHTML = "";
+          modalOrarioClasse.show();
+        });
+
+        selezionaClasseOrario.addEventListener("change", () => {
+          const classeSel = selezionaClasseOrario.value;
+          if (!classeSel) {
+            risultatoOrarioClasse.innerHTML = "";
+            return;
+          }
+
+          // 🔹 Filtra lezioni della classe, unendo anche (P)/(S)
+          const lezioniClasse = dati.filter(
+            (l) => normalizeClasse(l.classe) === classeSel
+          );
+
+          if (lezioniClasse.length === 0) {
+            risultatoOrarioClasse.innerHTML =
+              '<div class="alert alert-warning">Nessuna lezione trovata per questa classe.</div>';
+            return;
+          }
+
+          // 🔹 Crea struttura giorno → fascia → [docenti], deduplicata
+          const orarioPerGiorno = {};
+          giorniOrario.forEach((g) => (orarioPerGiorno[g] = {}));
+
+          lezioniClasse.forEach((lez) => {
+            const fascia = `${lez.oraInizio}-${lez.oraFine}`;
+            const g = lez.giorno;
+            if (!orarioPerGiorno[g][fascia])
+              orarioPerGiorno[g][fascia] = new Set();
+            orarioPerGiorno[g][fascia].add(lez.docente);
+          });
+
+          const fasceOrarie = Array.from(
+            new Set(lezioniClasse.map((l) => `${l.oraInizio}-${l.oraFine}`))
+          ).sort();
+
+          let headHTML = giorniOrario.map((g) => `<th>${g}</th>`).join("");
+          let bodyHTML = fasceOrarie
+            .map((fascia) => {
+              const celle = giorniOrario
+                .map((giorno) => {
+                  const setDoc = orarioPerGiorno[giorno][fascia];
+                  if (setDoc && setDoc.size > 0) {
+                    const docenti = Array.from(setDoc).sort();
+                    return `<td><span class="badge bg-primary rounded-pill">${docenti.join(
+                      "</span><br><span class='badge bg-primary rounded-pill'>"
+                    )}</span></td>`;
+                  } else {
+                    return `<td><span class="text-muted">—</span></td>`;
+                  }
+                })
+                .join("");
+              return `<tr><td class="ora-header">${fascia.replace(
+                "-",
+                " - "
+              )}</td>${celle}</tr>`;
+            })
+            .join("");
+
+          risultatoOrarioClasse.innerHTML = `
+    <h5 class="mb-3 text-center">${classeSel}</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered orario-settimanale-table">
+        <thead><tr><th class="ora-header">Ora</th>${headHTML}</tr></thead>
+        <tbody>${bodyHTML}</tbody>
+      </table>
+    </div>`;
+        });
+
+        modalOrarioClasseEl.addEventListener("hidden.bs.modal", () => {
+          selezionaClasseOrario.value = "";
+          risultatoOrarioClasse.innerHTML = "";
+        });
       });
+
+      function normalizeClasse(nome) {
+        if (!nome) return "";
+        return nome
+          .replace(/\r/g, "")
+          .trim()
+          .replace(/\((P|S)\)$/i, ""); // rimuove suffissi finali (P) o (S)
+      }
 
       function dataCorrente() {
         let data = new Date();
@@ -635,9 +778,13 @@
               console.log(classe.indexOf("(S)"));
               const dettagliAula =
                 classe.indexOf("(P)") == -1 && classe.indexOf("(S)") == -1
-                  ? mappaAule.get(classe.replace(/\r/g, "").trim())
+                  ? mappaAule.get(
+                      normalizeClasse(classe.replace(/\r/g, "").trim())
+                    )
                   : mappaAule.get(
-                      classe.replace(/\r/g, "").trim().slice(0, -3)
+                      normalizeClasse(
+                        classe.replace(/\r/g, "").trim().slice(0, -3)
+                      )
                     );
               let infoExtra = "";
               if (dettagliAula) {
@@ -688,11 +835,18 @@
 
       function popolaDropdownClassi() {
         const dropdown = document.getElementById("selezionaClasse");
-        const classi = Array.from(mappaAule.keys()).sort();
+        // Svuota per evitare duplicati tra ricariche/sedi
+        dropdown.innerHTML =
+          '<option value="">-- Seleziona una classe --</option>';
 
-        classi.forEach((classe) => {
+        // Prendi le chiavi già deduplicate e normalizzate da mappaAule
+        const classiUniche = Array.from(
+          new Set(Array.from(mappaAule.keys()))
+        ).sort();
+
+        classiUniche.forEach((classe) => {
           const option = document.createElement("option");
-          option.value = classe;
+          option.value = classe; // già normalizzata (senza (P)/(S))
           option.textContent = classe;
           dropdown.appendChild(option);
         });
@@ -713,13 +867,13 @@
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header">
+          <div class="modal-header bg-primary text-white">
             <h5 class="modal-title" id="modalLabel">
-              Cerca aula per classe (sede di Policoro)
+              Cerca aula per classe<br />(sede di Policoro)
             </h5>
             <button
               type="button"
-              class="btn-close"
+              class="btn-close btn-close-white"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
@@ -738,11 +892,45 @@
       </div>
     </div>
 
+    <div
+      class="modal fade"
+      id="modalOrarioClasse"
+      tabindex="-1"
+      aria-labelledby="modalClasseLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalClasseLabel">Orario per classe</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <select class="form-select" id="selezionaClasseOrario">
+                <option value="">-- Seleziona una classe --</option>
+              </select>
+            </div>
+            <div id="risultatoOrarioClasse" class="table-responsive"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <nav
-      class="navbar fixed-bottom navbar-light bg-light d-flex justify-content-around"
+      class="navbar fixed-bottom navbar-light bg-light d-flex justify-content-around border-top"
     >
       <button class="btn btn-light" id="fabTrovaAula">
         <i class="bi bi-search"></i><br />Cerca aula
+      </button>
+
+      <button class="btn btn-light" id="fabOrarioClasse">
+        <i class="bi bi-table"></i><br />Orario per classe
       </button>
     </nav>
   </body>
