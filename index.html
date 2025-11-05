@@ -165,6 +165,20 @@
         font-size: 0.8rem;
         line-height: 1.2;
       }
+
+      tr.ora-attuale td:first-child {
+        position: relative;
+      }
+
+      tr.ora-attuale td:first-child::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0; /* top:0; right:auto; bottom:0; left:0 */
+        width: 4px;
+        background: var(--bs-primary);
+        border-radius: 2px 0 0 2px;
+        pointer-events: none;
+      }
     </style>
   </head>
 
@@ -540,6 +554,33 @@
           .replace(/\((P|S)\)$/i, ""); // rimuove suffissi finali (P) o (S)
       }
 
+      function evidenziaOraAttuale() {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        document
+          .querySelectorAll("table.table-striped tbody tr")
+          .forEach((row) => {
+            const cells = row.querySelectorAll("td");
+            if (cells.length < 2) return;
+
+            const oraRange = cells[0].textContent.trim(); // es. "08:00 - 09:00"
+            const [start, end] = oraRange.split("-").map((t) => t.trim());
+            if (!start || !end) return;
+
+            const [h1, m1] = start.split(":").map(Number);
+            const [h2, m2] = end.split(":").map(Number);
+            const inizio = h1 * 60 + m1;
+            const fine = h2 * 60 + m2;
+
+            if (currentMinutes >= inizio && currentMinutes < fine) {
+              row.classList.add("ora-attuale");
+            } else {
+              row.classList.remove("ora-attuale");
+            }
+          });
+      }
+
       function dataCorrente() {
         let data = new Date();
 
@@ -777,7 +818,6 @@
             let cellaClasseHTML = "";
 
             if (classe) {
-              console.log(classe.indexOf("(S)"));
               const dettagliAula =
                 classe.indexOf("(P)") == -1 && classe.indexOf("(S)") == -1
                   ? mappaAule.get(
@@ -817,14 +857,34 @@
             }
 
             const [oraInizio, oraFine] = fascia.split("-");
+            const oraAttualeMinuti =
+              new Date().getHours() * 60 + new Date().getMinutes();
+            const inizioMinuti =
+              parseInt(oraInizio.split(":")[0]) * 60 +
+              parseInt(oraInizio.split(":")[1]);
+            const fineMinuti =
+              parseInt(oraFine.split(":")[0]) * 60 +
+              parseInt(oraFine.split(":")[1]);
+
+            // 🔹 Evidenzia solo se il docente ha lezione in quest’ora e siamo “dentro” quella fascia
+            const isLezione = cellaClasseHTML.includes("badge"); // c'è una lezione (non ora libera)
+            const isNow =
+              isLezione &&
+              oraAttualeMinuti >= inizioMinuti &&
+              oraAttualeMinuti < fineMinuti;
+
             return `
-          <tr>
-              <td>${oraInizio} - ${oraFine}</td>
-              <td>${cellaClasseHTML}</td>
-          </tr>
-          `;
+  <tr class="${isNow ? "ora-attuale" : ""}">
+    <td>
+      ${oraInizio} - ${oraFine}
+    </td>
+    <td>${cellaClasseHTML}</td>
+  </tr>
+`;
           })
           .join("");
+
+        evidenziaOraAttuale();
 
         return `
           <h6 class="card-subtitle mb-2 text-muted">${giorno}</h6>
