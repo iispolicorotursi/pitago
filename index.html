@@ -410,7 +410,6 @@
         });
 
         // ===== ORARIO PER CLASSE =====
-        // ===== ORARIO PER CLASSE =====
         const fabOrarioClasse = document.getElementById("fabOrarioClasse");
         const modalOrarioClasseEl =
           document.getElementById("modalOrarioClasse");
@@ -464,14 +463,18 @@
             return;
           }
 
-          // 🔹 Filtra lezioni della classe, unendo anche (P)/(S)
-          const lezioniClasse = dati.filter(
-            (l) => normalizeClasse(l.classe) === classeSel
-          );
+          // 🔹 Filtra solo docenti DISCIPLINARI (no (P) no (S))
+          const lezioniClasse = dati.filter((l) => {
+            const nomeClasse = l.classe.replace(/\r/g, "").trim();
+            return (
+              normalizeClasse(nomeClasse) === classeSel &&
+              !/\((P|S)\)$/i.test(nomeClasse) // esclude potenziamento e sostegno
+            );
+          });
 
           if (lezioniClasse.length === 0) {
             risultatoOrarioClasse.innerHTML =
-              '<div class="alert alert-warning">Nessuna lezione trovata per questa classe.</div>';
+              '<div class="alert alert-warning">Nessuna lezione disciplinare trovata per questa classe.</div>';
             return;
           }
 
@@ -515,6 +518,7 @@
             .join("");
 
           risultatoOrarioClasse.innerHTML = `
+    <h5 class="mb-3 text-center">${classeSel}</h5>
     <div class="table-responsive">
       <table class="table table-bordered orario-settimanale-table">
         <thead><tr><th class="ora-header">Ora</th>${headHTML}</tr></thead>
