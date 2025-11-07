@@ -478,11 +478,14 @@
           }
 
           // 🔹 Filtra solo docenti DISCIPLINARI (no (P) no (S))
+          // 🔹 Include docenti curricolari e di sostegno (ma non potenziamento)
           const lezioniClasse = dati.filter((l) => {
             const nomeClasse = l.classe.replace(/\r/g, "").trim();
+            const isCurricolare = !/\((P|S)\)$/i.test(nomeClasse);
+            const isSostegno = /\(S\)$/i.test(nomeClasse);
             return (
               normalizeClasse(nomeClasse) === classeSel &&
-              !/\((P|S)\)$/i.test(nomeClasse) // esclude potenziamento e sostegno
+              (isCurricolare || isSostegno)
             );
           });
 
@@ -513,17 +516,61 @@
             .map((fascia) => {
               const celle = giorniOrario
                 .map((giorno) => {
-                  const setDoc = orarioPerGiorno[giorno][fascia];
-                  if (setDoc && setDoc.size > 0) {
-                    const docenti = Array.from(setDoc).sort();
-                    return `<td><span class="badge bg-primary rounded-pill">${docenti.join(
-                      "</span><br><span class='badge bg-primary rounded-pill'>"
-                    )}</span></td>`;
-                  } else {
+                  // tutte le lezioni di quella classe, giorno e fascia
+                  const lezioniDelGiorno = dati.filter((l) => {
+                    const nomeClasse = l.classe.replace(/\r/g, "").trim();
+                    return (
+                      normalizeClasse(nomeClasse) === classeSel &&
+                      l.giorno === giorno &&
+                      `${l.oraInizio}-${l.oraFine}` === fascia &&
+                      !/\(P\)$/i.test(nomeClasse) // escludi potenziamento
+                    );
+                  });
+
+                  if (lezioniDelGiorno.length === 0) {
                     return `<td><span class="text-muted">—</span></td>`;
                   }
+
+                  // separa curricolari e sostegno
+                  const docentiCurricolari = [];
+                  const docentiSostegno = [];
+
+                  lezioniDelGiorno.forEach((lez) => {
+                    const nomeClasse = lez.classe.replace(/\r/g, "").trim();
+                    if (/\(S\)$/i.test(nomeClasse)) {
+                      docentiSostegno.push(lez.docente);
+                    } else {
+                      docentiCurricolari.push(lez.docente);
+                    }
+                  });
+
+                  // deduplica
+                  const uniciCurricolari = Array.from(
+                    new Set(docentiCurricolari)
+                  ).sort();
+                  const uniciSostegno = Array.from(
+                    new Set(docentiSostegno)
+                  ).sort();
+
+                  // costruisci HTML badge
+                  let html = "";
+                  if (uniciCurricolari.length) {
+                    html += `<span class="badge bg-primary rounded-pill">${uniciCurricolari.join(
+                      '</span><br><span class="badge bg-primary rounded-pill">'
+                    )}</span>`;
+                  }
+                  if (uniciSostegno.length) {
+                    html +=
+                      (html ? "<br>" : "") +
+                      `<span class="badge bg-success rounded-pill">${uniciSostegno.join(
+                        '</span><br><span class="badge bg-success rounded-pill">'
+                      )}</span>`;
+                  }
+
+                  return `<td>${html}</td>`;
                 })
                 .join("");
+
               return `<tr><td class="ora-header">${fascia.replace(
                 "-",
                 " - "
