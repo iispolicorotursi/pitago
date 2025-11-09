@@ -327,15 +327,28 @@
           ])
             .then(([orarioText, auleText]) => {
               const righeOrario = orarioText.trim().split("\n").slice(1);
-              dati = righeOrario.map((riga) => {
+              dati = [];
+
+              righeOrario.forEach((riga) => {
                 const colonne = riga.split(",");
-                return {
-                  docente: colonne[0],
-                  giorno: colonne[1],
-                  oraInizio: colonne[2],
-                  oraFine: colonne[3],
-                  classe: colonne[4],
-                };
+                if (colonne.length < 5) return;
+
+                const docente = colonne[0].trim();
+                const giorno = colonne[1].trim();
+                const oraInizio = colonne[2].trim();
+                const oraFine = colonne[3].trim();
+                const classiRaw = colonne[4].trim();
+
+                // 🔹 Separa più classi nella stessa cella (spazio, punto e virgola o simili)
+                const elencoClassi = classiRaw
+                  .split(/\s+/) // divide su spazi multipli
+                  .map((c) => c.trim())
+                  .filter((c) => c.length > 0);
+
+                // 🔹 Per ogni classe, crea una riga duplicata
+                elencoClassi.forEach((classe) => {
+                  dati.push({ docente, giorno, oraInizio, oraFine, classe });
+                });
               });
 
               const fasceUniche = new Set(
