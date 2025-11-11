@@ -340,10 +340,21 @@
                 const classiRaw = colonne[4].trim();
 
                 // 🔹 Separa più classi nella stessa cella (spazio, punto e virgola o simili)
-                const elencoClassi = classiRaw
-                  .split(/\s+/) // divide su spazi multipli
-                  .map((c) => c.trim())
-                  .filter((c) => c.length > 0);
+                // 🔹 Estrai le classi correttamente per sede
+                let elencoClassi;
+                if (sede === "tursi") {
+                  // Tursi scrive le classi con spazi: es. "3 A AFM 3 A CAT" → ["3 A AFM", "3 A CAT"]
+                  // (numero 1–5) (sezione A–Z) (indirizzo con almeno 2 lettere)
+                  elencoClassi = classiRaw.match(
+                    /\b[1-5]\s*[A-Z]\s*[A-Z]{2,}\b/g
+                  ) || [classiRaw];
+                } else {
+                  // Policoro resta invariato (gestisce "2P13 2P14", "4A-ITEC 4A-ITCM", ecc.)
+                  elencoClassi = classiRaw
+                    .split(/\s+/)
+                    .map((c) => c.trim())
+                    .filter((c) => c.length > 0);
+                }
 
                 // 🔹 Per ogni classe, crea una riga duplicata
                 elencoClassi.forEach((classe) => {
@@ -809,7 +820,7 @@
                   else if (classe.indexOf("(S)") != -1)
                     return `<td><span class="badge bg-success rounded-pill">${classe.slice(
                       0,
-                      -4
+                      -3
                     )}</span></td>`;
                   else
                     return `<td><span class="badge bg-danger rounded-pill">${classe.slice(
@@ -897,7 +908,7 @@
               else if (classe.indexOf("(S)") != -1)
                 cellaClasseHTML = `<span class="badge bg-success rounded-pill fs-6">${classe.slice(
                   0,
-                  -4
+                  -3
                 )}${infoExtra}</span>`;
               else
                 cellaClasseHTML = `<span class="badge bg-danger rounded-pill fs-6">${classe.slice(
