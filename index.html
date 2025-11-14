@@ -939,8 +939,12 @@
 
             // 🔹 Evidenzia solo se il docente ha lezione in quest’ora e siamo “dentro” quella fascia
             const isLezione = cellaClasseHTML.includes("badge"); // c'è una lezione (non ora libera)
+            const fasciaValida = tutteLeFasceOrarie.includes(
+              `${oraInizio}-${oraFine}`
+            );
+
             const isNow =
-              isLezione &&
+              fasciaValida &&
               oraAttualeMinuti >= inizioMinuti &&
               oraAttualeMinuti < fineMinuti;
 
