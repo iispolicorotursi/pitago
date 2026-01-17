@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
@@ -187,7 +187,7 @@
       <div class="text-center mb-4">
         <i class="bi bi-calendar-week fs-1 text-primary"></i>
         <h1 class="mt-2" id="the-title">PitaGO</h1>
-        <p class="small text-muted" id="version-container">versione 10</p>
+        <p class="small text-muted" id="version-container">versione 11</p>
         <p class="small text-muted" id="date-container"></p>
       </div>
 
@@ -271,7 +271,7 @@
             .then((registration) => {
               console.log(
                 "Service Worker registrato con successo:",
-                registration.scope
+                registration.scope,
               );
             })
             .catch((err) => {
@@ -317,12 +317,12 @@
             fetch(fileOrario).then((response) =>
               response.ok
                 ? response.text()
-                : Promise.reject(`${fileOrario} non trovato`)
+                : Promise.reject(`${fileOrario} non trovato`),
             ),
             fetch("classieaule.csv").then((response) =>
               response.ok
                 ? response.text()
-                : Promise.reject("classieaule.csv non trovato")
+                : Promise.reject("classieaule.csv non trovato"),
             ),
           ])
             .then(([orarioText, auleText]) => {
@@ -346,7 +346,7 @@
                   // Tursi scrive le classi con spazi: es. "3 A AFM 3 A CAT" → ["3 A AFM", "3 A CAT"]
                   // (numero 1–5) (sezione A–Z) (indirizzo con almeno 2 lettere)
                   elencoClassi = classiRaw.match(
-                    /\b[1-5]\s*[A-Z]\s*[A-Z]{2,}\b/g
+                    /\b[1-5]\s*[A-Z]\s*[A-Z]{2,}\b/g,
                   ) || [classiRaw];
                 } else {
                   // Policoro resta invariato (gestisce "2P13 2P14", "4A-ITEC 4A-ITCM", ecc.)
@@ -363,7 +363,7 @@
               });
 
               const fasceUniche = new Set(
-                dati.map((l) => `${l.oraInizio}-${l.oraFine}`)
+                dati.map((l) => `${l.oraInizio}-${l.oraFine}`),
               );
               tutteLeFasceOrarie = Array.from(fasceUniche).sort();
 
@@ -384,9 +384,8 @@
             })
             .catch((error) => {
               console.error("Dettagli errore:", error);
-              document.getElementById(
-                "info-text"
-              ).textContent = `Impossibile caricare i dati. Errore: ${error}.`;
+              document.getElementById("info-text").textContent =
+                `Impossibile caricare i dati. Errore: ${error}.`;
             });
         }
 
@@ -405,7 +404,7 @@
             // 🧠 Ricarica dati e riapplica il docente cercato solo dopo il fetch
             caricaDati(sedeCorrente).then(() => {
               const docenteSalvato = localStorage.getItem(
-                "ultimoDocenteCercato"
+                "ultimoDocenteCercato",
               );
               if (docenteSalvato) filtra();
             });
@@ -453,10 +452,10 @@
           document.getElementById("modalOrarioClasse");
         const modalOrarioClasse = new bootstrap.Modal(modalOrarioClasseEl);
         const selezionaClasseOrario = document.getElementById(
-          "selezionaClasseOrario"
+          "selezionaClasseOrario",
         );
         const risultatoOrarioClasse = document.getElementById(
-          "risultatoOrarioClasse"
+          "risultatoOrarioClasse",
         );
 
         fabOrarioClasse.addEventListener("click", async () => {
@@ -464,11 +463,10 @@
           await caricaDati(sedeCorrente);
 
           // Aggiorna titolo con la sede attiva
-          document.getElementById(
-            "modalClasseLabel"
-          ).textContent = `Orario per classe (${
-            sedeCorrente.charAt(0).toUpperCase() + sedeCorrente.slice(1)
-          })`;
+          document.getElementById("modalClasseLabel").textContent =
+            `Orario per classe (${
+              sedeCorrente.charAt(0).toUpperCase() + sedeCorrente.slice(1)
+            })`;
 
           // 🔹 Popola elenco classi (solo reali, deduplicate, senza (P)/(S))
           selezionaClasseOrario.innerHTML =
@@ -479,8 +477,8 @@
               dati
                 .map((d) => normalizeClasse(d.classe))
                 .filter((c) => c) // non vuoti
-                .filter((c) => /^[1-5]/.test(c)) // inizia con cifra
-            )
+                .filter((c) => /^[1-5]/.test(c)), // inizia con cifra
+            ),
           ).sort();
 
           classiUniche.forEach((classe) => {
@@ -532,7 +530,7 @@
           });
 
           const fasceOrarie = Array.from(
-            new Set(lezioniClasse.map((l) => `${l.oraInizio}-${l.oraFine}`))
+            new Set(lezioniClasse.map((l) => `${l.oraInizio}-${l.oraFine}`)),
           ).sort();
 
           let headHTML = giorniOrario.map((g) => `<th>${g}</th>`).join("");
@@ -570,24 +568,24 @@
 
                   // deduplica
                   const uniciCurricolari = Array.from(
-                    new Set(docentiCurricolari)
+                    new Set(docentiCurricolari),
                   ).sort();
                   const uniciSostegno = Array.from(
-                    new Set(docentiSostegno)
+                    new Set(docentiSostegno),
                   ).sort();
 
                   // costruisci HTML badge
                   let html = "";
                   if (uniciCurricolari.length) {
                     html += `<span class="badge bg-primary rounded-pill">${uniciCurricolari.join(
-                      '</span><br><span class="badge bg-primary rounded-pill">'
+                      '</span><br><span class="badge bg-primary rounded-pill">',
                     )}</span>`;
                   }
                   if (uniciSostegno.length) {
                     html +=
                       (html ? "<br>" : "") +
                       `<span class="badge bg-success rounded-pill">${uniciSostegno.join(
-                        '</span><br><span class="badge bg-success rounded-pill">'
+                        '</span><br><span class="badge bg-success rounded-pill">',
                       )}</span>`;
                   }
 
@@ -597,7 +595,7 @@
 
               return `<tr><td class="ora-header">${fascia.replace(
                 "-",
-                " - "
+                " - ",
               )}</td>${celle}</tr>`;
             })
             .join("");
@@ -670,9 +668,8 @@
         let mese = String(data.getMonth() + 1).padStart(2, "0");
         let anno = data.getFullYear();
 
-        document.getElementById(
-          "date-container"
-        ).innerHTML = `Oggi è <span id="current-date">${giornoSettimana} ${giorno}/${mese}/${anno}</span>`;
+        document.getElementById("date-container").innerHTML =
+          `Oggi è <span id="current-date">${giornoSettimana} ${giorno}/${mese}/${anno}</span>`;
       }
 
       function impostaGiornoCorrente() {
@@ -718,7 +715,7 @@
           d.docente
             .toLowerCase()
             .replace(/[‘’`]/g, "'")
-            .startsWith(docenteCercato)
+            .startsWith(docenteCercato),
         );
         const docentiRaggruppati = datiFiltrati.reduce((acc, lezione) => {
           acc[lezione.docente] = acc[lezione.docente] || [];
@@ -746,13 +743,13 @@
             cardBody = creaTabellaSettimanale(lezioniDocente);
           } else {
             const haLezioniNelGiorno = lezioniDocente.some(
-              (l) => l.giorno === giornoSelezionato
+              (l) => l.giorno === giornoSelezionato,
             );
 
             if (haLezioniNelGiorno) {
               cardBody = creaListaGiornaliera(
                 lezioniDocente,
-                giornoSelezionato
+                giornoSelezionato,
               );
             }
           }
@@ -786,11 +783,11 @@
 
           if (lezioniDelGiorno.length > 1) {
             const fasceOrarieGiorno = lezioniDelGiorno.map(
-              (l) => `${l.oraInizio}-${l.oraFine}`
+              (l) => `${l.oraInizio}-${l.oraFine}`,
             );
             primoIndice = tutteLeFasceOrarie.indexOf(fasceOrarieGiorno[0]);
             ultimoIndice = tutteLeFasceOrarie.indexOf(
-              fasceOrarieGiorno[fasceOrarieGiorno.length - 1]
+              fasceOrarieGiorno[fasceOrarieGiorno.length - 1],
             );
           }
 
@@ -820,12 +817,12 @@
                   else if (classe.indexOf("(S)") != -1)
                     return `<td><span class="badge bg-success rounded-pill">${classe.slice(
                       0,
-                      -3
+                      -3,
                     )}</span></td>`;
                   else
                     return `<td><span class="badge bg-danger rounded-pill">${classe.slice(
                       0,
-                      -3
+                      -3,
                     )}</span></td>`;
                 } else {
                   const { primoIndice, ultimoIndice } = orarioPerGiorno[giorno];
@@ -843,7 +840,7 @@
               .join("");
             return `<tr><td class="ora-header">${fascia.replace(
               "-",
-              " - "
+              " - ",
             )}</td>${celle}</tr>`;
           })
           .join("");
@@ -867,13 +864,13 @@
         let ultimoIndiceLezione = -1;
         if (lezioniDelGiorno.length > 1) {
           const fasceOrarieDelDocente = lezioniDelGiorno.map(
-            (l) => `${l.oraInizio}-${l.oraFine}`
+            (l) => `${l.oraInizio}-${l.oraFine}`,
           );
           primoIndiceLezione = tutteLeFasceOrarie.indexOf(
-            fasceOrarieDelDocente[0]
+            fasceOrarieDelDocente[0],
           );
           ultimoIndiceLezione = tutteLeFasceOrarie.indexOf(
-            fasceOrarieDelDocente[fasceOrarieDelDocente.length - 1]
+            fasceOrarieDelDocente[fasceOrarieDelDocente.length - 1],
           );
         }
 
@@ -892,12 +889,12 @@
               const dettagliAula =
                 classe.indexOf("(P)") == -1 && classe.indexOf("(S)") == -1
                   ? mappaAule.get(
-                      normalizeClasse(classe.replace(/\r/g, "").trim())
+                      normalizeClasse(classe.replace(/\r/g, "").trim()),
                     )
                   : mappaAule.get(
                       normalizeClasse(
-                        classe.replace(/\r/g, "").trim().slice(0, -3)
-                      )
+                        classe.replace(/\r/g, "").trim().slice(0, -3),
+                      ),
                     );
               let infoExtra = "";
               if (dettagliAula) {
@@ -908,12 +905,12 @@
               else if (classe.indexOf("(S)") != -1)
                 cellaClasseHTML = `<span class="badge bg-success rounded-pill fs-6">${classe.slice(
                   0,
-                  -3
+                  -3,
                 )}${infoExtra}</span>`;
               else
                 cellaClasseHTML = `<span class="badge bg-danger rounded-pill fs-6">${classe.slice(
                   0,
-                  -3
+                  -3,
                 )}${infoExtra}</span>`;
             } else {
               if (
@@ -940,7 +937,7 @@
             // 🔹 Evidenzia solo se il docente ha lezione in quest’ora e siamo “dentro” quella fascia
             const isLezione = cellaClasseHTML.includes("badge"); // c'è una lezione (non ora libera)
             const fasciaValida = tutteLeFasceOrarie.includes(
-              `${oraInizio}-${oraFine}`
+              `${oraInizio}-${oraFine}`,
             );
 
             const isNow =
@@ -978,7 +975,7 @@
 
         // Prendi le chiavi già deduplicate e normalizzate da mappaAule
         const classiUniche = Array.from(
-          new Set(Array.from(mappaAule.keys()))
+          new Set(Array.from(mappaAule.keys())),
         ).sort();
 
         classiUniche.forEach((classe) => {
