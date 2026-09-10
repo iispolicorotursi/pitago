@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PitaGO — A.S. 2026/27</title>
+
+    <meta name="theme-color" content="#0d6efd" />
+    <link rel="manifest" href="manifest.json" />
+    <link
+      rel="apple-touch-icon"
+      href="https://www.gstatic.com/android/keyboard/emojikit/20181026/emojikit/256/1f4c5.png"
+    />
+
+    <link rel="icon" href="calendario_256.png" sizes="256x256" />
+
+    <style>
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+      }
+
+      .container {
+        max-width: 1140px;
+      }
+
+      h1 {
+        color: #343a40;
+        font-weight: 600;
+      }
+
+      .card {
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border: none;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 10px;
+        padding: 10px 15px;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        border-color: #80bdff;
+      }
+
+      .info-message {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: #6c757d;
+      }
+
+      .input-group-text {
+        border-radius: 10px 0 0 10px;
+      }
+
+      .orario-settimanale-table {
+        table-layout: fixed;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 0.9rem;
+      }
+
+      .orario-settimanale-table th {
+        background-color: #e9ecef;
+      }
+
+      .orario-settimanale-table td,
+      .orario-settimanale-table th {
+        border: 1px solid #dee2e6;
+      }
+
+      .orario-settimanale-table .ora-header {
+        font-weight: 600;
+        width: 100px;
+      }
+
+      @media (max-width: 767px) {
+        .orario-settimanale-table {
+          font-size: 0.8rem;
+          table-layout: auto;
+        }
+
+        .orario-settimanale-table td,
+        .orario-settimanale-table th {
+          padding: 0.4rem 0.2rem;
+          white-space: nowrap;
+        }
+
+        .orario-settimanale-table .ora-header {
+          width: auto;
+          min-width: 75px;
+        }
+
+        #current-date {
+          font-weight: bold;
+        }
+      }
+
+      #results-container .card:last-child {
+        margin-bottom: 95px !important;
+      }
+
+      #version-container {
+        margin-top: -5px;
+        font-style: italic;
+        font-size: 0.775em;
+      }
+
+      #the-title {
+        margin-bottom: 0;
+      }
+
+      .table-striped td {
+        vertical-align: middle;
+      }
+      .sede-toggle .btn {
+        border-radius: 30px;
+        padding: 6px 18px;
+        font-weight: 600;
+        transition: all 0.25s ease-in-out;
+      }
+
+      .sede-toggle .btn.active {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        /* box-shadow: 0 0 10px rgba(13, 110, 253, 0.3); */
+      }
+
+      .sede-toggle .btn:not(.active):hover {
+        background-color: rgba(13, 110, 253, 0.08);
+        color: #0d6efd;
+      }
+
+      .navbar.fixed-bottom {
+        border-top: 1px solid #dee2e6;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+      .btn-light i {
+        font-size: 1.3rem;
+      }
+      .btn-light {
+        font-size: 0.8rem;
+        line-height: 1.2;
+      }
+
+      tr.ora-attuale td:first-child {
+        position: relative;
+      }
+
+      tr.ora-attuale td:first-child::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0; /* top:0; right:auto; bottom:0; left:0 */
+        width: 4px;
+        background: var(--bs-primary);
+        border-radius: 2px 0 0 2px;
+        pointer-events: none;
+      }
+
+      .header-block {
+        margin-top: 24px;
+        margin-bottom: 38px;
+      }
+
+      #the-title {
+        margin-bottom: 0;
+        font-size: clamp(2.7rem, 6vw, 3.5rem);
+        font-weight: 500;
+        letter-spacing: -1.5px;
+      }
+
+      #version-container {
+        margin-top: 4px;
+        margin-bottom: 0;
+        font-style: italic;
+        font-size: 0.8rem;
+      }
+
+      #date-container {
+        margin-top: 22px;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+      }
+
+      .announcement-card {
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        padding-top: 48px !important;
+        padding-bottom: 48px !important;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .announcement-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        background: #eef5ff;
+        color: #0d6efd;
+      }
+
+      .announcement-icon i {
+        font-size: 2.15rem;
+      }
+
+      .announcement-title {
+        margin: 0;
+        color: #343a40;
+        font-size: clamp(1.75rem, 4vw, 2.35rem);
+        font-weight: 500;
+        letter-spacing: -0.6px;
+      }
+
+      .announcement-text {
+        max-width: 680px;
+        margin: 18px auto 0;
+        color: #6c757d;
+        font-size: 1.05rem;
+        line-height: 1.65;
+      }
+
+      .announcement-text strong {
+        color: #0d6efd;
+        font-weight: 600;
+      }
+
+      .announcement-text.secondary {
+        margin-top: 10px;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 28px;
+        padding: 9px 17px;
+        border-radius: 30px;
+        background: rgba(13, 110, 253, 0.08);
+        color: #0d6efd;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0d6efd;
+      }
+
+      .info-message {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 10px 20px 25px;
+        text-align: center;
+        font-size: 0.9rem;
+        font-style: italic;
+        color: #6c757d;
+      }
+
+      .nav-action {
+        min-width: 150px;
+        border: 0;
+        font-size: 0.8rem;
+        line-height: 1.2;
+        opacity: 0.85;
+      }
+
+      .nav-action i {
+        font-size: 1.3rem;
+      }
+
+      .nav-action:disabled {
+        color: #212529;
+        background: transparent;
+        opacity: 0.85;
+      }
+
+      @media (max-width: 767px) {
+        .header-block {
+          margin-top: 10px;
+          margin-bottom: 30px;
+        }
+
+        .announcement-card {
+          padding-left: 24px !important;
+          padding-right: 24px !important;
+        }
+
+        .announcement-text {
+          font-size: 1rem;
+        }
+
+        .nav-action {
+          min-width: 130px;
+        }
+      }
+
+    </style>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --blue: #0d6efd;
+    --text: #343a40;
+    --muted: #6c757d;
+    --background: #f8f9fa;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: "Nunito", sans-serif;
+    background: var(--background);
+    color: var(--text);
+  }
+
+  .minimal-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+
+  .message {
+    width: min(620px, 100%);
+    text-align: center;
+  }
+
+  .logo {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.8rem, 8vw, 4rem);
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: -2px;
+  }
+
+  .version {
+    margin: 7px 0 42px;
+    color: var(--muted);
+    font-size: .8rem;
+    font-style: italic;
+  }
+
+  .notice {
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.7;
+  }
+
+  .notice strong {
+    color: var(--blue);
+    font-weight: 600;
+  }
+
+  @media (max-width: 480px) {
+    .minimal-page {
+      padding: 24px 18px;
+    }
+
+    .version {
+      margin-bottom: 34px;
+    }
+  }
+</style>
+
+  </head>
+
+<body>
+  <main class="minimal-page">
+    <section class="message" aria-label="Avviso PitaGO">
+      <img
+        class="logo"
+        src="calendario_256.png"
+        alt="PitaGO"
+      />
+
+      <h1>PitaGO</h1>
+
+      <p class="version">versione 11</p>
+
+      <p class="notice">
+        Il nuovo orario per l'<strong>a.s. 2026/27</strong>
+        sarà presto disponibile.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
